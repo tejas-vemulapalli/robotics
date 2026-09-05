@@ -68,12 +68,14 @@ body::before {
 .slide {
   position: absolute;
   inset: 0;
-  padding: 48px 72px 92px;
+  padding: 32px 56px 105px;
   opacity: 0;
   transform: translateX(48px) scale(0.985);
   pointer-events: none;
   transition: opacity 0.55s ease, transform 0.55s ease;
   overflow: hidden;
+  display: flex;
+  flex-direction: column;
 }
 
 .slide.active {
@@ -238,33 +240,36 @@ p {
 
 /* ---------- Slide 1 ---------- */
 .slide-title {
-  display: grid;
-  place-items: center;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
   text-align: center;
+  padding-bottom: 90px;
 }
 
 .title-stage {
   position: relative;
-  width: min(1100px, 100%);
+  width: min(1000px, 92%);
 }
 
 .title-stage h1 {
-  font-size: clamp(2.4rem, 6vw, 5.2rem);
-  line-height: 1.05;
-  margin-bottom: 18px;
+  font-size: clamp(2.2rem, 5vw, 4.4rem);
+  line-height: 1.1;
+  margin-bottom: 14px;
   text-shadow: 0 0 28px rgba(62, 224, 255, 0.35);
 }
 
 .title-sub {
   font-family: var(--font-display);
-  font-size: clamp(1.05rem, 2.3vw, 1.7rem);
+  font-size: clamp(1.05rem, 2vw, 1.55rem);
   color: var(--cyan-2);
   letter-spacing: 0.04em;
 }
 
 .expo-ring {
   position: absolute;
-  inset: -8% -6%;
+  inset: -6% -5%;
   border: 1px solid rgba(62, 224, 255, 0.18);
   border-radius: 40px;
   pointer-events: none;
@@ -296,8 +301,9 @@ p {
 }
 
 .bot-silhouette {
-  width: min(280px, 32vw);
-  margin: 0 auto 28px;
+  width: min(160px, 18vh);
+  height: auto;
+  margin: 0 auto 16px;
   opacity: 0.95;
 }
 
@@ -335,18 +341,19 @@ p {
 
 /* ---------- Slide 2 ---------- */
 .four-grid {
-  height: 100%;
+  flex: 1;
+  min-height: 0;
   display: grid;
   grid-template-columns: 1fr 1fr;
   grid-template-rows: 1fr 1fr;
-  gap: 22px;
+  gap: 16px;
 }
 
 .answer-card {
-  padding: 32px 34px;
+  padding: 22px 28px;
   display: flex;
   align-items: center;
-  font-size: clamp(1.15rem, 2.1vw, 1.55rem);
+  font-size: clamp(1.05rem, 1.8vw, 1.4rem);
   line-height: 1.4;
   position: relative;
   overflow: hidden;
@@ -378,7 +385,8 @@ p {
 
 /* ---------- Slide 3 ---------- */
 .match-layout {
-  height: 100%;
+  flex: 1;
+  min-height: 0;
   display: grid;
   grid-template-rows: auto 1fr auto;
   gap: 16px;
@@ -458,7 +466,8 @@ p {
 
 /* ---------- Slide 4 ---------- */
 .classify-layout {
-  height: 100%;
+  flex: 1;
+  min-height: 0;
   display: grid;
   grid-template-rows: 1.15fr 0.85fr;
   gap: 18px;
@@ -553,7 +562,8 @@ p {
 
 /* ---------- Slide 5 ---------- */
 .machines {
-  height: 100%;
+  flex: 1;
+  min-height: 0;
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 18px;
@@ -635,7 +645,8 @@ p {
 
 /* ---------- Slide 6 ---------- */
 .humanoid-layout {
-  height: 100%;
+  flex: 1;
+  min-height: 0;
   display: grid;
   grid-template-columns: 1.15fr 0.85fr;
   gap: 28px;
@@ -654,7 +665,6 @@ p {
   line-height: 1.5;
 }
 
-. vis-row,
 .vis-row {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -670,7 +680,8 @@ p {
 
 /* ---------- Slide 7 / 8 ---------- */
 .split-visual {
-  height: 100%;
+  flex: 1;
+  min-height: 0;
   display: grid;
   grid-template-columns: 0.9fr 1.1fr;
   gap: 24px;
@@ -793,7 +804,8 @@ p {
 
 /* ---------- Slide 9 ---------- */
 .modern-layout {
-  height: 100%;
+  flex: 1;
+  min-height: 0;
   display: grid;
   grid-template-columns: 1.15fr 0.85fr;
   gap: 24px;
@@ -856,7 +868,8 @@ p {
 
 /* ---------- Slide 10 ---------- */
 .eval-grid {
-  height: 100%;
+  flex: 1;
+  min-height: 0;
   display: grid;
   grid-template-columns: 1fr 1fr;
   grid-template-rows: 1fr 1fr;
@@ -898,7 +911,8 @@ p {
 
 /* ---------- Slide 11 ---------- */
 .medisort-layout {
-  height: 100%;
+  flex: 1;
+  min-height: 0;
   display: grid;
   grid-template-columns: 0.95fr 1.15fr;
   gap: 18px;
