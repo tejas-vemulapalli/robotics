@@ -262,9 +262,11 @@ p {
 
 .title-sub {
   font-family: var(--font-display);
-  font-size: clamp(1.05rem, 2vw, 1.55rem);
+  font-size: clamp(1.15rem, 2.2vw, 1.8rem);
   color: var(--cyan-2);
-  letter-spacing: 0.04em;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  text-shadow: 0 0 16px rgba(122, 240, 255, 0.45);
 }
 
 .expo-ring {
