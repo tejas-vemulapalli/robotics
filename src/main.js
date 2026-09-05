@@ -76,26 +76,32 @@ window.addEventListener("keydown", (e) => {
    ========================================================================== */
 const pairs = [
   {
+    id: 0,
     term: "Machine",
     def: "A mechanical tool made of moving parts that uses energy to do a specific job."
   },
   {
+    id: 1,
     term: "Algorithm",
     def: "A step-by-step set of rules or instructions for a computer to follow."
   },
   {
+    id: 2,
     term: "Machine Learning",
     def: "The process where computers analyse data to get smarter over time without being given every single rule."
   },
   {
+    id: 3,
     term: "Sensor",
     def: "A hardware piece that takes in real-world information (like light or touch) and sends it to a computer."
   },
   {
+    id: 4,
     term: "Autonomous System",
     def: "A system or machine that can run entirely on its own without a human controller."
   },
   {
+    id: 5,
     term: "Android",
     def: "A robot that is specifically designed to look and act like a human being."
   }
@@ -103,94 +109,271 @@ const pairs = [
 
 const vocabStack = document.getElementById("vocab-stack");
 const defStack = document.getElementById("def-stack");
-const unmatchedColumns = document.getElementById("unmatched-columns");
-const matchedColumns = document.getElementById("matched-columns");
 const matchBtn = document.getElementById("match-btn");
+const matchSvg = document.getElementById("match-svg");
+const matchArena = document.getElementById("match-arena");
 
 let isMatched = false;
+let isMatchingInProgress = false;
 
 function setupMixMatch() {
+  if (!vocabStack || !defStack) return;
   vocabStack.innerHTML = "";
   defStack.innerHTML = "";
-  matchedColumns.innerHTML = "";
+  if (matchSvg) matchSvg.innerHTML = "";
 
   // Render initial separated vocabulary
   pairs.forEach((p, i) => {
-    const t = document.createElement("div");
-    t.className = "term";
-    t.id = `term-${i}`;
-    t.textContent = p.term;
-    vocabStack.appendChild(t);
+    const slot = document.createElement("div");
+    slot.className = "vocab-slot";
+    slot.id = `vocab-slot-${i}`;
+    slot.dataset.pairId = String(i);
+
+    const chip = document.createElement("div");
+    chip.className = "term-chip";
+    chip.id = `term-chip-${i}`;
+    chip.dataset.pairId = String(i);
+    chip.innerHTML = `<span class="chip-num">0${i + 1}</span> <span class="chip-text">${p.term}</span>`;
+
+    // Click individual chip to trigger single match animation
+    chip.addEventListener("click", () => {
+      if (!isMatchingInProgress && !chip.classList.contains("chip-docked")) {
+        matchSingleItem(i);
+      }
+    });
+
+    slot.appendChild(chip);
+    vocabStack.appendChild(slot);
   });
 
   // Render shuffled definitions for authentic mix-and-match
   const shuffledDefIndices = [2, 0, 4, 1, 5, 3];
   shuffledDefIndices.forEach((defIdx) => {
-    const d = document.createElement("div");
-    d.className = "def";
-    d.id = `def-${defIdx}`;
-    d.textContent = pairs[defIdx].def;
-    defStack.appendChild(d);
-  });
+    const p = pairs[defIdx];
+    const card = document.createElement("div");
+    card.className = "panel def-card";
+    card.id = `def-card-${defIdx}`;
+    card.dataset.pairId = String(defIdx);
 
-  // Prepare matched layout
-  pairs.forEach((p) => {
-    const row = document.createElement("div");
-    row.className = "matched-pair";
-    row.innerHTML = `
-      <div class="term" style="font-size: 0.98rem; display: flex; align-items: center; justify-content: center;">${p.term}</div>
-      <div class="def" style="font-size: 0.95rem;">${p.def}</div>
-    `;
-    matchedColumns.appendChild(row);
+    const dock = document.createElement("div");
+    dock.className = "def-dock";
+    dock.id = `def-dock-${defIdx}`;
+    dock.dataset.pairId = String(defIdx);
+    dock.innerHTML = `<span class="dock-placeholder">Receptor 0${defIdx + 1}</span>`;
+
+    const text = document.createElement("div");
+    text.className = "def-text";
+    text.textContent = p.def;
+
+    card.appendChild(dock);
+    card.appendChild(text);
+    defStack.appendChild(card);
   });
 }
 
-matchBtn.addEventListener("click", () => {
-  if (!isMatched) {
-    matchBtn.disabled = true;
-    matchBtn.textContent = "Matching...";
+function matchSingleItem(pairId) {
+  const chip = document.getElementById(`term-chip-${pairId}`);
+  const slot = document.getElementById(`vocab-slot-${pairId}`);
+  const dock = document.getElementById(`def-dock-${pairId}`);
+  const defCard = document.getElementById(`def-card-${pairId}`);
+  if (!chip || !slot || !dock || !defCard) return;
 
-    // Visual flying animation for terms to corresponding definitions
-    const termElements = Array.from(vocabStack.querySelectorAll(".term"));
-    termElements.forEach((el, idx) => {
-      const defTarget = document.getElementById(`def-${idx}`);
-      if (defTarget) {
-        const fromRect = el.getBoundingClientRect();
-        const toRect = defTarget.getBoundingClientRect();
+  const arenaRect = matchArena ? matchArena.getBoundingClientRect() : null;
+  animateChipToDock(chip, slot, dock, defCard, arenaRect, matchSvg, () => {
+    checkAllMatchedStatus();
+  });
+}
 
-        const ghost = el.cloneNode(true);
-        ghost.className = "term ghost-fly";
-        ghost.style.left = `${fromRect.left}px`;
-        ghost.style.top = `${fromRect.top}px`;
-        ghost.style.width = `${fromRect.width}px`;
-        ghost.style.height = `${fromRect.height}px`;
-        document.body.appendChild(ghost);
+function checkAllMatchedStatus() {
+  const dockedChips = document.querySelectorAll(".term-chip.chip-docked");
+  if (dockedChips.length === pairs.length) {
+    isMatched = true;
+    if (matchBtn) matchBtn.textContent = "Reset Mix";
+  }
+}
 
-        requestAnimationFrame(() => {
-          ghost.style.transform = `translate(${toRect.left - fromRect.left}px, ${toRect.top - fromRect.top}px)`;
-          ghost.style.borderColor = "var(--mint)";
-        });
+function animateChipToDock(chip, slot, dock, defCard, arenaRect, svg, onComplete) {
+  const startRect = chip.getBoundingClientRect();
+  const targetRect = dock.getBoundingClientRect();
 
-        setTimeout(() => {
-          ghost.remove();
-        }, 700);
-      }
-    });
+  const deltaX = targetRect.left - startRect.left;
+  const deltaY = targetRect.top - startRect.top;
+
+  // Draw glowing SVG trajectory
+  if (svg && arenaRect) {
+    const startX = startRect.right - arenaRect.left;
+    const startY = startRect.top + startRect.height / 2 - arenaRect.top;
+    const endX = targetRect.left - arenaRect.left;
+    const endY = targetRect.top + targetRect.height / 2 - arenaRect.top;
+    const midX = (startX + endX) / 2;
+
+    const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
+    path.setAttribute(
+      "d",
+      `M ${startX} ${startY} C ${midX} ${startY}, ${midX} ${endY}, ${endX} ${endY}`
+    );
+    path.setAttribute("stroke", "url(#laser-grad)");
+    path.setAttribute("stroke-width", "2");
+    path.setAttribute("fill", "none");
+    path.setAttribute("stroke-dasharray", "6 4");
+    path.style.transition = "opacity 0.4s ease";
+    svg.appendChild(path);
 
     setTimeout(() => {
-      unmatchedColumns.classList.add("hidden-layout");
-      matchedColumns.classList.remove("hidden-layout");
-      matchBtn.disabled = false;
-      matchBtn.textContent = "Reset Mix";
-      isMatched = true;
-    }, 750);
-  } else {
-    unmatchedColumns.classList.remove("hidden-layout");
-    matchedColumns.classList.add("hidden-layout");
-    matchBtn.textContent = "Match";
-    isMatched = false;
+      path.style.opacity = "0";
+      setTimeout(() => path.remove(), 400);
+    }, 700);
   }
-});
+
+  // Smooth transit
+  chip.classList.add("chip-in-transit");
+  chip.style.transition = "transform 0.72s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.3s ease";
+  chip.style.transform = `translate3d(${deltaX}px, ${deltaY}px, 0)`;
+
+  slot.innerHTML = `<span class="slot-ghost">✓ Transferred</span>`;
+
+  setTimeout(() => {
+    dock.innerHTML = "";
+    chip.style.transition = "none";
+    chip.style.transform = "none";
+    chip.classList.remove("chip-in-transit");
+    chip.classList.add("chip-docked");
+    dock.appendChild(chip);
+
+    defCard.classList.add("card-matched");
+
+    dock.animate(
+      [
+        { transform: "scale(1)" },
+        { transform: "scale(1.04)", borderColor: "var(--mint)" },
+        { transform: "scale(1)" }
+      ],
+      { duration: 250, easing: "ease-out" }
+    );
+
+    if (onComplete) onComplete();
+  }, 730);
+}
+
+function animateChipBackToSlot(chip, slot, dock, defCard, onComplete) {
+  const startRect = chip.getBoundingClientRect();
+  const targetRect = slot.getBoundingClientRect();
+
+  const deltaX = targetRect.left - startRect.left;
+  const deltaY = targetRect.top - startRect.top;
+
+  chip.classList.remove("chip-docked");
+  chip.classList.add("chip-in-transit");
+  chip.style.transition = "transform 0.65s cubic-bezier(0.22, 1, 0.36, 1)";
+  chip.style.transform = `translate3d(${deltaX}px, ${deltaY}px, 0)`;
+
+  defCard.classList.remove("card-matched");
+  const pairId = Number(chip.dataset.pairId);
+  dock.innerHTML = `<span class="dock-placeholder">Receptor 0${pairId + 1}</span>`;
+
+  setTimeout(() => {
+    slot.innerHTML = "";
+    chip.style.transition = "none";
+    chip.style.transform = "none";
+    chip.classList.remove("chip-in-transit");
+    slot.appendChild(chip);
+
+    slot.animate(
+      [
+        { transform: "scale(1)" },
+        { transform: "scale(1.03)", borderColor: "var(--cyan)" },
+        { transform: "scale(1)" }
+      ],
+      { duration: 220, easing: "ease-out" }
+    );
+
+    if (onComplete) onComplete();
+  }, 660);
+}
+
+if (matchBtn) {
+  matchBtn.addEventListener("click", async () => {
+    if (isMatchingInProgress) return;
+    isMatchingInProgress = true;
+    matchBtn.disabled = true;
+
+    if (!isMatched) {
+      matchBtn.textContent = "Matching...";
+
+      const arenaRect = matchArena ? matchArena.getBoundingClientRect() : null;
+      if (matchSvg) {
+        matchSvg.innerHTML = `
+          <defs>
+            <linearGradient id="laser-grad" x1="0%" y1="0%" x2="100%" y2="0%">
+              <stop offset="0%" stop-color="#3ee0ff" stop-opacity="0.3"/>
+              <stop offset="50%" stop-color="#7af0ff" stop-opacity="0.95"/>
+              <stop offset="100%" stop-color="#5dffc4" stop-opacity="0.4"/>
+            </linearGradient>
+          </defs>
+        `;
+      }
+
+      const promises = [];
+      pairs.forEach((p, idx) => {
+        const chip = document.getElementById(`term-chip-${idx}`);
+        const slot = document.getElementById(`vocab-slot-${idx}`);
+        const dock = document.getElementById(`def-dock-${idx}`);
+        const defCard = document.getElementById(`def-card-${idx}`);
+
+        if (chip && chip.parentElement !== dock) {
+          const delayMs = idx * 85;
+          promises.push(
+            new Promise((resolve) => {
+              setTimeout(() => {
+                animateChipToDock(chip, slot, dock, defCard, arenaRect, matchSvg, resolve);
+              }, delayMs);
+            })
+          );
+        }
+      });
+
+      await Promise.all(promises);
+
+      setTimeout(() => {
+        if (matchSvg) matchSvg.innerHTML = "";
+        matchBtn.textContent = "Reset Mix";
+        matchBtn.disabled = false;
+        isMatched = true;
+        isMatchingInProgress = false;
+      }, 400);
+    } else {
+      matchBtn.textContent = "Resetting...";
+
+      const promises = [];
+      pairs.forEach((p, idx) => {
+        const chip = document.getElementById(`term-chip-${idx}`);
+        const slot = document.getElementById(`vocab-slot-${idx}`);
+        const dock = document.getElementById(`def-dock-${idx}`);
+        const defCard = document.getElementById(`def-card-${idx}`);
+
+        if (chip && chip.parentElement === dock) {
+          const delayMs = idx * 60;
+          promises.push(
+            new Promise((resolve) => {
+              setTimeout(() => {
+                animateChipBackToSlot(chip, slot, dock, defCard, resolve);
+              }, delayMs);
+            })
+          );
+        }
+      });
+
+      await Promise.all(promises);
+
+      setTimeout(() => {
+        matchBtn.textContent = "Match";
+        matchBtn.disabled = false;
+        isMatched = false;
+        isMatchingInProgress = false;
+      }, 350);
+    }
+  });
+}
 
 /* ==========================================================================
    3. Slide 4: Classification Interactive

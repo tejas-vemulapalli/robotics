@@ -61,23 +61,25 @@
         <!-- Slide 3 -->
         <section class="slide" data-slide="3" aria-label="Slide 3">
           <div class="match-layout">
-            <div>
+            <div class="match-header">
               <div class="kicker">Terminology Matching</div>
               <p style="font-size: 0.95rem; color: var(--muted); margin-bottom: 6px;">Interactive Part: Start of with the definitions and the vocabulary separated, then make an animation of them going to the right place when a button called “Match” is clicked</p>
             </div>
 
-            <div class="match-columns" id="unmatched-columns">
-              <div class="panel" style="padding: 16px;">
-                <div class="col-title">Vocabulary</div>
-                <div class="term-stack" id="vocab-stack"></div>
-              </div>
-              <div class="panel" style="padding: 16px;">
-                <div class="col-title">Definitions</div>
-                <div class="def-stack" id="def-stack"></div>
+            <div class="match-arena" id="match-arena">
+              <svg class="match-svg-canvas" id="match-svg" aria-hidden="true"></svg>
+
+              <div class="match-columns" id="unmatched-columns">
+                <div class="panel match-panel vocab-panel">
+                  <div class="col-title">Vocabulary</div>
+                  <div class="term-stack" id="vocab-stack"></div>
+                </div>
+                <div class="panel match-panel def-panel">
+                  <div class="col-title">Definitions</div>
+                  <div class="def-stack" id="def-stack"></div>
+                </div>
               </div>
             </div>
-
-            <div class="matched-stack hidden-layout panel" id="matched-columns" style="padding: 16px; overflow: auto;"></div>
 
             <div class="match-actions">
               <button class="action-btn" id="match-btn" type="button">Match</button>
