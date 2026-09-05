@@ -948,20 +948,142 @@ p {
   position: relative;
   min-height: 0;
   overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.medisort-header {
+  padding: 8px 14px 6px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid var(--line);
+  margin-bottom: 4px;
+}
+
+.view-toggle {
+  display: inline-flex;
+  gap: 4px;
+  background: rgba(16, 32, 56, 0.7);
+  padding: 3px;
+  border-radius: 999px;
+  border: 1px solid var(--line);
+}
+
+.view-btn {
+  appearance: none;
+  border: 0;
+  background: transparent;
+  color: var(--muted);
+  font-family: var(--font-display);
+  font-size: 0.72rem;
+  letter-spacing: 0.08em;
+  padding: 4px 12px;
+  border-radius: 999px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.view-btn.active {
+  background: var(--cyan);
+  color: #041018;
+  font-weight: 700;
+  box-shadow: 0 0 10px rgba(62, 224, 255, 0.4);
+}
+
+.view-btn:hover:not(.active) {
+  color: var(--text);
+}
+
+.medisort-view-pane {
+  position: relative;
+  flex: 1;
+  min-height: 0;
+  width: 100%;
 }
 
 #medisort-canvas {
   width: 100%;
-  height: calc(100% - 70px);
+  height: 100%;
   display: block;
-  border-radius: 16px;
+  border-radius: 14px;
+}
+
+.concept-frame {
+  height: 100%;
+  width: 100%;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 14px;
+  overflow: hidden;
+  background: radial-gradient(circle at center, #102038 0%, #070b14 100%);
+  border: 1px solid rgba(62, 224, 255, 0.2);
+}
+
+.concept-frame img {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+  border-radius: 10px;
+}
+
+.concept-pin {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  cursor: pointer;
+  z-index: 5;
+}
+
+.pin-dot {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: var(--cyan);
+  border: 2px solid #fff;
+  box-shadow: 0 0 12px var(--cyan);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-display);
+  font-size: 11px;
+  color: #041018;
+  font-weight: 900;
+  animation: pulsePin 2s infinite;
+}
+
+@keyframes pulsePin {
+  0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(62, 224, 255, 0.7); }
+  70% { transform: scale(1.1); box-shadow: 0 0 0 8px rgba(62, 224, 255, 0); }
+  100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(62, 224, 255, 0); }
+}
+
+.pin-tooltip {
+  position: absolute;
+  left: 50%;
+  bottom: 26px;
+  transform: translateX(-50%);
+  background: rgba(7, 15, 28, 0.95);
+  border: 1px solid var(--cyan);
+  border-radius: 8px;
+  padding: 6px 10px;
+  white-space: nowrap;
+  font-size: 0.76rem;
+  color: #fff;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.7);
+  z-index: 10;
+}
+
+.concept-pin:hover .pin-tooltip {
+  opacity: 1;
 }
 
 .medisort-controls {
-  position: absolute;
-  left: 16px;
-  right: 16px;
-  bottom: 14px;
+  padding: 10px 14px 4px;
   display: flex;
   justify-content: center;
   gap: 10px;

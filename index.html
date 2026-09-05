@@ -585,11 +585,62 @@
             </div>
 
             <div class="panel medisort-stage">
-              <div style="padding: 10px 14px 4px; display: flex; justify-content: space-between; align-items: center;">
-                <div class="kicker" style="margin: 0;">Interactive 3D Prototype</div>
+              <div class="medisort-header">
+                <div style="display: flex; gap: 10px; align-items: center;">
+                  <div class="kicker" style="margin: 0;">Medisort System</div>
+                  <div class="view-toggle" role="tablist" aria-label="Medisort Display Modes">
+                    <button type="button" class="view-btn active" id="btn-view-3d">3D Simulator</button>
+                    <button type="button" class="view-btn" id="btn-view-concept">Concept Render</button>
+                  </div>
+                </div>
                 <div id="medisort-status" style="font-size: 0.82rem; font-family: var(--font-display); color: var(--cyan);">Ready</div>
               </div>
-              <canvas id="medisort-canvas"></canvas>
+
+              <!-- 3D Interactive View -->
+              <div class="medisort-view-pane" id="pane-3d">
+                <canvas id="medisort-canvas"></canvas>
+              </div>
+
+              <!-- Concept Render Blueprint View -->
+              <div class="medisort-view-pane hidden-layout" id="pane-concept">
+                <div class="concept-frame">
+                  <img src="./medisort-concept.jpg" alt="Medisort Reference Concept Machine" />
+                  <!-- Interactive Callout Pins -->
+                  <div class="concept-pin" style="top: 18%; left: 52%;">
+                    <div class="pin-dot">1</div>
+                    <div class="pin-tooltip"><strong>Sensors / Touchscreen:</strong> Next Dose (08:30 AM), Tray 5 B-12 Tablet, Alarm</div>
+                  </div>
+                  <div class="concept-pin" style="top: 48%; left: 35%;">
+                    <div class="pin-dot">2</div>
+                    <div class="pin-tooltip"><strong>Suction Pipe 1:</strong> Suction pipe on tray position 1</div>
+                  </div>
+                  <div class="concept-pin" style="top: 50%; left: 61%;">
+                    <div class="pin-dot">3</div>
+                    <div class="pin-tooltip"><strong>Suction Pipe 8:</strong> Suction pipe on tray position 8</div>
+                  </div>
+                  <div class="concept-pin" style="top: 62%; left: 48%;">
+                    <div class="pin-dot">4</div>
+                    <div class="pin-tooltip"><strong>Rotating Tray:</strong> 8 sequentially numbered compartments with pills</div>
+                  </div>
+                  <div class="concept-pin" style="top: 80%; left: 20%;">
+                    <div class="pin-dot">5</div>
+                    <div class="pin-tooltip"><strong>Safety / Weight Scanner:</strong> Verified 1 pill (0.52g) &amp; Encrypted Data</div>
+                  </div>
+                  <div class="concept-pin" style="top: 86%; left: 45%;">
+                    <div class="pin-dot">6</div>
+                    <div class="pin-tooltip"><strong>Dispense Chute:</strong> Illuminated medicine delivery tray</div>
+                  </div>
+                  <div class="concept-pin" style="top: 32%; left: 93%;">
+                    <div class="pin-dot">7</div>
+                    <div class="pin-tooltip"><strong>Emergency Backup:</strong> Battery backup system (System OK)</div>
+                  </div>
+                  <div class="concept-pin" style="top: 86%; left: 66%;">
+                    <div class="pin-dot">8</div>
+                    <div class="pin-tooltip"><strong>Child &amp; Pet Proof:</strong> Biometric safety lock active</div>
+                  </div>
+                </div>
+              </div>
+
               <div class="medisort-controls">
                 <button class="action-btn ghost" id="btn-rotate-tray" type="button">Rotate tray</button>
                 <button class="action-btn" id="btn-dispense" type="button">Dispense</button>

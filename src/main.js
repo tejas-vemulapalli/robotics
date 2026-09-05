@@ -282,12 +282,206 @@ function setupClassification() {
 }
 
 /* ==========================================================================
-   4. Slide 11: Real-Time 3D Medisort Model (Three.js)
+   4. Slide 11: Real-Time 3D Medisort Model (Three.js) & Concept View
    ========================================================================== */
-let scene, camera, renderer, trayGroup, suctionGroup, pillMesh;
+let scene, camera, renderer, trayGroup, suctionGroup, pillMesh, dispensedPillMesh;
 let resizeRenderer = null;
 let isDispensing = false;
 let trayTargetAngle = 0;
+let alarmLed;
+
+// Helper to create the top digital touchscreen texture matching the concept
+function createScreenTexture() {
+  const canvas = document.createElement("canvas");
+  canvas.width = 1024;
+  canvas.height = 512;
+  const ctx = canvas.getContext("2d");
+
+  // High-tech dark gradient
+  const grad = ctx.createLinearGradient(0, 0, 0, 512);
+  grad.addColorStop(0, "#0b172a");
+  grad.addColorStop(1, "#050b14");
+  ctx.fillStyle = grad;
+  ctx.fillRect(0, 0, 1024, 512);
+
+  // Border & Header
+  ctx.strokeStyle = "rgba(62, 224, 255, 0.4)";
+  ctx.lineWidth = 6;
+  ctx.strokeRect(16, 16, 992, 480);
+
+  // Brand Name
+  ctx.fillStyle = "#ffffff";
+  ctx.font = "900 46px Orbitron, sans-serif";
+  ctx.textAlign = "center";
+  ctx.fillText("MEDISORT", 512, 72);
+
+  // Card 1: Time & Next Dose
+  ctx.fillStyle = "rgba(16, 34, 60, 0.88)";
+  ctx.strokeStyle = "rgba(62, 224, 255, 0.5)";
+  ctx.lineWidth = 3;
+  ctx.beginPath();
+  ctx.roundRect(42, 106, 430, 260, 16);
+  ctx.fill();
+  ctx.stroke();
+
+  ctx.fillStyle = "#9db4cc";
+  ctx.font = "22px sans-serif";
+  ctx.textAlign = "left";
+  ctx.fillText("Mon, 12 May 2025", 68, 148);
+
+  ctx.fillStyle = "#3ee0ff";
+  ctx.font = "bold 58px Orbitron, sans-serif";
+  ctx.fillText("08:30", 68, 215);
+  ctx.font = "bold 24px Orbitron, sans-serif";
+  ctx.fillText("AM", 262, 192);
+  ctx.fillStyle = "#ffbe3c";
+  ctx.font = "20px sans-serif";
+  ctx.fillText("Next Dose", 262, 222);
+
+  ctx.fillStyle = "#ffffff";
+  ctx.font = "bold 26px sans-serif";
+  ctx.fillText("Tray 5: B-12 Tablet", 68, 282);
+  ctx.fillStyle = "#7af0ff";
+  ctx.font = "20px sans-serif";
+  ctx.fillText("Take 1 pill • Administrate every 2-3 weeks", 68, 320);
+
+  // Card 2: Status Ready & Alarm
+  ctx.fillStyle = "rgba(16, 34, 60, 0.88)";
+  ctx.beginPath();
+  ctx.roundRect(494, 106, 230, 260, 16);
+  ctx.fill();
+  ctx.stroke();
+
+  // Green badge
+  ctx.fillStyle = "#10b981";
+  ctx.beginPath();
+  ctx.arc(609, 172, 34, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.fillStyle = "#ffffff";
+  ctx.font = "bold 36px sans-serif";
+  ctx.textAlign = "center";
+  ctx.fillText("✓", 609, 184);
+
+  ctx.fillStyle = "#5dffc4";
+  ctx.font = "bold 28px Orbitron, sans-serif";
+  ctx.fillText("Ready", 609, 246);
+
+  ctx.fillStyle = "#ffbe3c";
+  ctx.font = "20px sans-serif";
+  ctx.fillText("⏰ Alarm in 0 min", 609, 305);
+
+  // Card 3: Quick Menu
+  ctx.fillStyle = "rgba(16, 34, 60, 0.88)";
+  ctx.beginPath();
+  ctx.roundRect(746, 106, 236, 260, 16);
+  ctx.fill();
+  ctx.stroke();
+
+  ctx.fillStyle = "#7af0ff";
+  ctx.font = "20px Orbitron, sans-serif";
+  ctx.textAlign = "left";
+  ctx.fillText("📅 Schedule", 772, 160);
+  ctx.fillText("💊 Medication", 772, 212);
+  ctx.fillText("🕒 History", 772, 264);
+  ctx.fillText("⚙️ Settings", 772, 316);
+
+  // Bottom Status Bar
+  ctx.fillStyle = "#10b981";
+  ctx.beginPath();
+  ctx.arc(68, 424, 10, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.fillStyle = "#ffffff";
+  ctx.font = "bold 20px sans-serif";
+  ctx.textAlign = "left";
+  ctx.fillText("CHILD & PET PROOF: SECURE", 90, 431);
+
+  ctx.fillStyle = "#3ee0ff";
+  ctx.textAlign = "right";
+  ctx.fillText("ENCRYPTED HEALTH DATA • BACKUP ACTIVE", 955, 431);
+
+  const texture = new THREE.CanvasTexture(canvas);
+  texture.needsUpdate = true;
+  return texture;
+}
+
+// Helper to create the Weight Scanner OLED texture
+function createScannerTexture() {
+  const canvas = document.createElement("canvas");
+  canvas.width = 512;
+  canvas.height = 256;
+  const ctx = canvas.getContext("2d");
+
+  ctx.fillStyle = "#071220";
+  ctx.fillRect(0, 0, 512, 256);
+  ctx.strokeStyle = "#3ee0ff";
+  ctx.lineWidth = 4;
+  ctx.strokeRect(10, 10, 492, 236);
+
+  ctx.fillStyle = "#3ee0ff";
+  ctx.font = "bold 26px Orbitron, sans-serif";
+  ctx.textAlign = "left";
+  ctx.fillText("⚖️ WEIGHT SCANNER", 28, 55);
+
+  ctx.fillStyle = "#5dffc4";
+  ctx.font = "bold 32px sans-serif";
+  ctx.fillText("Verified: 1 pill", 28, 115);
+
+  ctx.fillStyle = "#ffffff";
+  ctx.font = "28px sans-serif";
+  ctx.fillText("Weight: 0.52 g", 28, 165);
+
+  ctx.fillStyle = "#8b7cff";
+  ctx.font = "bold 22px sans-serif";
+  ctx.fillText("🛡️ DATA ENCRYPTED", 28, 215);
+
+  const texture = new THREE.CanvasTexture(canvas);
+  texture.needsUpdate = true;
+  return texture;
+}
+
+// Helper to create the Emergency Backup battery texture
+function createBackupTexture() {
+  const canvas = document.createElement("canvas");
+  canvas.width = 256;
+  canvas.height = 512;
+  const ctx = canvas.getContext("2d");
+
+  ctx.fillStyle = "#091424";
+  ctx.fillRect(0, 0, 256, 512);
+  ctx.strokeStyle = "rgba(62, 224, 255, 0.4)";
+  ctx.lineWidth = 4;
+  ctx.strokeRect(10, 10, 236, 492);
+
+  ctx.fillStyle = "#ffffff";
+  ctx.font = "bold 22px Orbitron, sans-serif";
+  ctx.textAlign = "center";
+  ctx.fillText("EMERGENCY", 128, 60);
+  ctx.fillText("BACKUP", 128, 92);
+
+  // Battery icon
+  ctx.strokeStyle = "#5dffc4";
+  ctx.lineWidth = 4;
+  ctx.strokeRect(58, 140, 140, 70);
+  ctx.fillRect(198, 160, 14, 30);
+  ctx.fillStyle = "#5dffc4";
+  ctx.fillRect(66, 148, 124, 54);
+
+  ctx.fillStyle = "#ffbe3c";
+  ctx.font = "bold 44px sans-serif";
+  ctx.fillText("⚡", 128, 280);
+
+  ctx.fillStyle = "#5dffc4";
+  ctx.font = "bold 24px Orbitron, sans-serif";
+  ctx.fillText("System OK", 128, 335);
+
+  ctx.beginPath();
+  ctx.arc(128, 395, 14, 0, Math.PI * 2);
+  ctx.fill();
+
+  const texture = new THREE.CanvasTexture(canvas);
+  texture.needsUpdate = true;
+  return texture;
+}
 
 function initMedisort3D() {
   const canvas = document.getElementById("medisort-canvas");
@@ -297,12 +491,12 @@ function initMedisort3D() {
   const height = canvas.clientHeight || 450;
 
   scene = new THREE.Scene();
-  scene.background = new THREE.Color(0x0a1424);
-  scene.fog = new THREE.FogExp2(0x0a1424, 0.04);
+  scene.background = new THREE.Color(0x070e1a);
+  scene.fog = new THREE.FogExp2(0x070e1a, 0.035);
 
-  camera = new THREE.PerspectiveCamera(42, width / height, 0.1, 100);
-  camera.position.set(0, 7.5, 9.8);
-  camera.lookAt(0, 0.5, 0);
+  camera = new THREE.PerspectiveCamera(40, width / height, 0.1, 100);
+  camera.position.set(0, 7.8, 10.4);
+  camera.lookAt(0, 0.7, 0);
 
   renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
   renderer.setSize(width, height, false);
@@ -310,240 +504,408 @@ function initMedisort3D() {
   renderer.shadowMap.enabled = true;
 
   // Lighting
-  const ambientLight = new THREE.AmbientLight(0xffffff, 0.85);
+  const ambientLight = new THREE.AmbientLight(0xffffff, 0.9);
   scene.add(ambientLight);
 
-  const keyLight = new THREE.DirectionalLight(0x7af0ff, 2.2);
-  keyLight.position.set(6, 12, 8);
+  const keyLight = new THREE.DirectionalLight(0x7af0ff, 2.5);
+  keyLight.position.set(6, 14, 8);
   keyLight.castShadow = true;
   scene.add(keyLight);
 
-  const rimLight = new THREE.DirectionalLight(0x8b7cff, 1.8);
-  rimLight.position.set(-8, 6, -6);
+  const rimLight = new THREE.DirectionalLight(0x8b7cff, 2.0);
+  rimLight.position.set(-8, 8, -6);
   scene.add(rimLight);
 
-  const fillLight = new THREE.PointLight(0xffbe3c, 1.2, 12);
+  const fillLight = new THREE.PointLight(0xffbe3c, 1.4, 14);
   fillLight.position.set(0, 4, 3);
   scene.add(fillLight);
 
-  // Machine Base Plate
-  const baseGeo = new THREE.CylinderGeometry(4.2, 4.4, 0.45, 48);
-  const baseMat = new THREE.MeshStandardMaterial({
-    color: 0x132640,
-    metalness: 0.7,
+  // Machine Outer Chassis (Two-tone White & Anthracite like concept)
+  const chassisGroup = new THREE.Group();
+  scene.add(chassisGroup);
+
+  const whiteMat = new THREE.MeshStandardMaterial({
+    color: 0xebf1f6,
+    metalness: 0.25,
     roughness: 0.3
   });
-  const machineBase = new THREE.Mesh(baseGeo, baseMat);
-  machineBase.position.y = -0.22;
-  machineBase.receiveShadow = true;
-  scene.add(machineBase);
+  const darkMetalMat = new THREE.MeshStandardMaterial({
+    color: 0x142032,
+    metalness: 0.8,
+    roughness: 0.25
+  });
+  const cyanGlowMat = new THREE.MeshBasicMaterial({ color: 0x3ee0ff });
 
-  // Outer protective housing (Translucent acrylic cylinder)
-  const housingGeo = new THREE.CylinderGeometry(4.15, 4.15, 3.4, 48, 1, true);
-  const housingMat = new THREE.MeshPhysicalMaterial({
+  // Lower Base Platform
+  const baseBoxGeo = new THREE.BoxGeometry(6.6, 0.5, 6.2);
+  const baseBox = new THREE.Mesh(baseBoxGeo, whiteMat);
+  baseBox.position.set(0, -0.25, 0.2);
+  baseBox.receiveShadow = true;
+  chassisGroup.add(baseBox);
+
+  // Rear Machine Tower Body
+  const towerGeo = new THREE.BoxGeometry(6.4, 4.6, 2.8);
+  const tower = new THREE.Mesh(towerGeo, whiteMat);
+  tower.position.set(0, 2.2, -1.5);
+  chassisGroup.add(tower);
+
+  // Dark Inner Chamber Well
+  const chamberFloorGeo = new THREE.CylinderGeometry(3.3, 3.3, 0.3, 48);
+  const chamberFloor = new THREE.Mesh(chamberFloorGeo, darkMetalMat);
+  chamberFloor.position.set(0, 0.1, 0.3);
+  chassisGroup.add(chamberFloor);
+
+  // Top Angled Console Head with Digital Screen
+  const consoleHeadGroup = new THREE.Group();
+  consoleHeadGroup.position.set(0, 3.8, -0.6);
+  consoleHeadGroup.rotation.x = -Math.PI * 0.14; // Angled backward like concept
+  chassisGroup.add(consoleHeadGroup);
+
+  const consoleHousingGeo = new THREE.BoxGeometry(5.2, 2.4, 1.2);
+  const consoleHousing = new THREE.Mesh(consoleHousingGeo, whiteMat);
+  consoleHeadGroup.add(consoleHousing);
+
+  const screenGeo = new THREE.PlaneGeometry(4.7, 2.1);
+  const screenMat = new THREE.MeshBasicMaterial({ map: createScreenTexture() });
+  const screenMesh = new THREE.Mesh(screenGeo, screenMat);
+  screenMesh.position.set(0, 0, 0.61);
+  consoleHeadGroup.add(screenMesh);
+
+  // Right Side Module: Emergency Backup Battery Panel
+  const backupGeo = new THREE.PlaneGeometry(1.6, 2.4);
+  const backupMat = new THREE.MeshBasicMaterial({ map: createBackupTexture() });
+  const backupMesh = new THREE.Mesh(backupGeo, backupMat);
+  backupMesh.position.set(3.21, 2.4, -1.2);
+  backupMesh.rotation.y = Math.PI / 2;
+  chassisGroup.add(backupMesh);
+
+  // Right Side Module: Purge Bin (Clear container with discarded pills)
+  const purgeBinGroup = new THREE.Group();
+  purgeBinGroup.position.set(3.2, 0.6, 1.0);
+  chassisGroup.add(purgeBinGroup);
+
+  const purgeBinGeo = new THREE.BoxGeometry(0.8, 1.6, 1.0);
+  const clearAcrylicMat = new THREE.MeshPhysicalMaterial({
     color: 0x3ee0ff,
     transparent: true,
-    opacity: 0.18,
+    opacity: 0.28,
+    transmission: 0.85,
     roughness: 0.1,
-    transmission: 0.75,
-    thickness: 0.5,
+    thickness: 0.4
+  });
+  const purgeBinMesh = new THREE.Mesh(purgeBinGeo, clearAcrylicMat);
+  purgeBinGroup.add(purgeBinMesh);
+
+  // Pills inside purge bin
+  const wastePillColors = [0xff6b8a, 0xffbe3c, 0x5dffc4, 0x7af0ff];
+  for (let p = 0; p < 7; p++) {
+    const wpGeo = new THREE.SphereGeometry(0.1, 10, 10);
+    const wpMat = new THREE.MeshStandardMaterial({ color: wastePillColors[p % wastePillColors.length] });
+    const wp = new THREE.Mesh(wpGeo, wpMat);
+    wp.position.set((Math.random() - 0.5) * 0.4, -0.6 + p * 0.12, (Math.random() - 0.5) * 0.4);
+    purgeBinGroup.add(wp);
+  }
+
+  // Left Side Module: Pill Intake Hopper Slide
+  const hopperGroup = new THREE.Group();
+  hopperGroup.position.set(-3.2, 2.8, -0.8);
+  chassisGroup.add(hopperGroup);
+
+  const hopperGeo = new THREE.BoxGeometry(0.9, 0.5, 1.6);
+  const hopperMesh = new THREE.Mesh(hopperGeo, clearAcrylicMat);
+  hopperGroup.add(hopperMesh);
+
+  // Front Lower Left Module: Weight Scanner OLED Display
+  const scannerGeo = new THREE.PlaneGeometry(1.9, 0.95);
+  const scannerMat = new THREE.MeshBasicMaterial({ map: createScannerTexture() });
+  const scannerMesh = new THREE.Mesh(scannerGeo, scannerMat);
+  scannerMesh.position.set(-1.8, 0.4, 3.31);
+  chassisGroup.add(scannerMesh);
+
+  // Front Lower Right Module: Child & Pet Proof Status Light
+  const lockPlateGeo = new THREE.BoxGeometry(1.6, 0.95, 0.2);
+  const lockPlate = new THREE.Mesh(lockPlateGeo, darkMetalMat);
+  lockPlate.position.set(1.9, 0.4, 3.25);
+  chassisGroup.add(lockPlate);
+
+  alarmLed = new THREE.Mesh(new THREE.SphereGeometry(0.14, 16, 16), new THREE.MeshBasicMaterial({ color: 0x10b981 }));
+  alarmLed.position.set(1.9, 0.4, 3.38);
+  chassisGroup.add(alarmLed);
+
+  // Front Center: Illuminated Dispensing Output Chute Drawer
+  const chuteGroup = new THREE.Group();
+  chuteGroup.position.set(0, 0.35, 3.2);
+  chassisGroup.add(chuteGroup);
+
+  const chuteFrameGeo = new THREE.BoxGeometry(1.5, 0.95, 0.8);
+  const chuteFrame = new THREE.Mesh(chuteFrameGeo, darkMetalMat);
+  chuteGroup.add(chuteFrame);
+
+  // Dispenser Scoop Interior
+  const scoopGeo = new THREE.BoxGeometry(1.1, 0.35, 0.6);
+  const scoopMat = new THREE.MeshStandardMaterial({ color: 0x081324, roughness: 0.3 });
+  const scoop = new THREE.Mesh(scoopGeo, scoopMat);
+  scoop.position.set(0, -0.1, 0.15);
+  chuteGroup.add(scoop);
+
+  // Glowing Blue Accent Light Strip in Dispenser Scoop
+  const scoopGlow = new THREE.Mesh(new THREE.BoxGeometry(1.1, 0.05, 0.05), cyanGlowMat);
+  scoopGlow.position.set(0, -0.22, 0.42);
+  chuteGroup.add(scoopGlow);
+
+  // Pre-dispensed tablet resting in chute (visible after dispense)
+  const tabletGeo = new THREE.CapsuleGeometry ? new THREE.CapsuleGeometry(0.12, 0.32, 8, 16) : new THREE.CylinderGeometry(0.14, 0.14, 0.35, 16);
+  const dispensedPillMat = new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.2 });
+  dispensedPillMesh = new THREE.Mesh(tabletGeo, dispensedPillMat);
+  dispensedPillMesh.rotation.z = Math.PI / 2;
+  dispensedPillMesh.position.set(0, -0.05, 0.22);
+  dispensedPillMesh.visible = false;
+  chuteGroup.add(dispensedPillMesh);
+
+  // Protective Curved Graphene Glass Canopy
+  const canopyGeo = new THREE.CylinderGeometry(3.15, 3.15, 2.6, 48, 1, true, 0, Math.PI);
+  const canopyMat = new THREE.MeshPhysicalMaterial({
+    color: 0x7af0ff,
+    transparent: true,
+    opacity: 0.18,
+    transmission: 0.88,
+    roughness: 0.08,
+    thickness: 0.3,
     side: THREE.DoubleSide
   });
-  const housing = new THREE.Mesh(housingGeo, housingMat);
-  housing.position.y = 1.6;
-  scene.add(housing);
-
-  // Top Housing Rim
-  const rimGeo = new THREE.TorusGeometry(4.15, 0.08, 16, 64);
-  const rimMat = new THREE.MeshStandardMaterial({ color: 0x3ee0ff, metalness: 0.8, roughness: 0.2 });
-  const topRim = new THREE.Mesh(rimGeo, rimMat);
-  topRim.rotation.x = Math.PI / 2;
-  topRim.position.y = 3.3;
-  scene.add(topRim);
-
-  // Central Rotating Hub & Mechanism
-  const hubGeo = new THREE.CylinderGeometry(0.8, 0.95, 1.1, 32);
-  const hubMat = new THREE.MeshStandardMaterial({ color: 0x1f3b60, metalness: 0.85, roughness: 0.25 });
-  const centralHub = new THREE.Mesh(hubGeo, hubMat);
-  centralHub.position.y = 0.55;
-  scene.add(centralHub);
-
-  const hubCoreGeo = new THREE.CylinderGeometry(0.35, 0.35, 1.8, 24);
-  const hubCoreMat = new THREE.MeshStandardMaterial({ color: 0xffbe3c, metalness: 0.9, roughness: 0.2 });
-  const hubCore = new THREE.Mesh(hubCoreGeo, hubCoreMat);
-  hubCore.position.y = 0.9;
-  scene.add(hubCore);
+  const canopy = new THREE.Mesh(canopyGeo, canopyMat);
+  canopy.rotation.y = -Math.PI / 2;
+  canopy.position.set(0, 1.5, 0.3);
+  chassisGroup.add(canopy);
 
   // Circular Rotating Tray Group
   trayGroup = new THREE.Group();
-  trayGroup.position.y = 0.4;
+  trayGroup.position.set(0, 0.45, 0.3);
   scene.add(trayGroup);
 
-  const trayDiscGeo = new THREE.CylinderGeometry(3.6, 3.6, 0.3, 48);
+  const trayDiscGeo = new THREE.CylinderGeometry(2.9, 2.9, 0.28, 48);
   const trayMat = new THREE.MeshStandardMaterial({
-    color: 0x1a3354,
-    metalness: 0.6,
-    roughness: 0.35
+    color: 0x182436,
+    metalness: 0.75,
+    roughness: 0.25
   });
   const trayDisc = new THREE.Mesh(trayDiscGeo, trayMat);
   trayDisc.receiveShadow = true;
   trayGroup.add(trayDisc);
 
-  // Create 8 numbered sequential compartments
+  // Central Rotating Hub Mechanism with Cyan LED Ring
+  const centralHubGeo = new THREE.CylinderGeometry(0.75, 0.85, 0.5, 32);
+  const centralHub = new THREE.Mesh(centralHubGeo, darkMetalMat);
+  centralHub.position.y = 0.25;
+  trayGroup.add(centralHub);
+
+  const hubRingGeo = new THREE.TorusGeometry(0.78, 0.04, 16, 48);
+  const hubRing = new THREE.Mesh(hubRingGeo, cyanGlowMat);
+  hubRing.rotation.x = Math.PI / 2;
+  hubRing.position.y = 0.4;
+  trayGroup.add(hubRing);
+
+  // Create 8 numbered sequential compartments with colorful 3D pills
   const compartmentCount = 8;
-  const trayRadius = 2.45;
+  const trayRadius = 2.05;
 
   for (let i = 0; i < compartmentCount; i++) {
     const angle = (i / compartmentCount) * Math.PI * 2;
     const x = Math.cos(angle) * trayRadius;
     const z = Math.sin(angle) * trayRadius;
 
-    // Compartment hole
-    const holeGeo = new THREE.CylinderGeometry(0.48, 0.44, 0.32, 24);
+    // Compartment hole pocket
+    const holeGeo = new THREE.CylinderGeometry(0.44, 0.4, 0.26, 24);
     const holeMat = new THREE.MeshStandardMaterial({
-      color: 0x081324,
-      roughness: 0.5,
-      metalness: 0.4
+      color: 0x091424,
+      roughness: 0.45,
+      metalness: 0.5
     });
     const hole = new THREE.Mesh(holeGeo, holeMat);
-    hole.position.set(x, 0.02, z);
+    hole.position.set(x, 0.03, z);
     trayGroup.add(hole);
 
-    // Pill in compartment 1 and compartment 5
-    if (i === 0 || i === 4) {
-      const tabletGeo = new THREE.CylinderGeometry(0.25, 0.25, 0.12, 20);
-      const tabletMat = new THREE.MeshStandardMaterial({
-        color: i === 0 ? 0xff6b8a : 0x5dffc4,
-        roughness: 0.3
-      });
-      const tablet = new THREE.Mesh(tabletGeo, tabletMat);
-      tablet.position.set(x, 0.14, z);
-      trayGroup.add(tablet);
-    }
-
-    // Number Badge (1 to 8 sequentially)
+    // Number Badge (1 to 8 sequentially in blue circular pill style)
     const canvasText = document.createElement("canvas");
     canvasText.width = 128;
     canvasText.height = 128;
     const ctx = canvasText.getContext("2d");
-    ctx.fillStyle = "#102038";
+    ctx.fillStyle = "#0c2448";
     ctx.beginPath();
     ctx.arc(64, 64, 56, 0, Math.PI * 2);
     ctx.fill();
     ctx.strokeStyle = "#3ee0ff";
-    ctx.lineWidth = 8;
+    ctx.lineWidth = 10;
     ctx.stroke();
     ctx.fillStyle = "#ffffff";
-    ctx.font = "bold 58px Orbitron, sans-serif";
+    ctx.font = "bold 64px Orbitron, sans-serif";
     ctx.textAlign = "center";
     ctx.textBaseline = "middle";
     ctx.fillText(String(i + 1), 64, 66);
 
     const texture = new THREE.CanvasTexture(canvasText);
-    const badgeGeo = new THREE.PlaneGeometry(0.46, 0.46);
+    const badgeGeo = new THREE.PlaneGeometry(0.42, 0.42);
     const badgeMat = new THREE.MeshBasicMaterial({ map: texture, transparent: true });
     const badge = new THREE.Mesh(badgeGeo, badgeMat);
     badge.rotation.x = -Math.PI / 2;
     badge.rotation.z = -angle - Math.PI / 2;
-    badge.position.set(x * 0.72, 0.16, z * 0.72);
+    badge.position.set(x * 0.7, 0.16, z * 0.7);
     trayGroup.add(badge);
+
+    // Populate ALL compartments with realistic pills/capsules
+    const pillGroup = new THREE.Group();
+    pillGroup.position.set(x, 0.16, z);
+    trayGroup.add(pillGroup);
+
+    if (i === 0) {
+      // Tray 1: White round tablets
+      for (let k = 0; k < 4; k++) {
+        const pMesh = new THREE.Mesh(new THREE.CylinderGeometry(0.12, 0.12, 0.08, 16), new THREE.MeshStandardMaterial({ color: 0xffffff }));
+        pMesh.position.set((k % 2 - 0.5) * 0.18, 0, (Math.floor(k / 2) - 0.5) * 0.18);
+        pillGroup.add(pMesh);
+      }
+    } else if (i === 1) {
+      // Tray 2: Blue & white two-tone capsules
+      for (let k = 0; k < 2; k++) {
+        const cap = new THREE.Mesh(new THREE.CylinderGeometry(0.09, 0.09, 0.28, 16), new THREE.MeshStandardMaterial({ color: 0x3ee0ff }));
+        cap.rotation.z = Math.PI / 3;
+        cap.position.set((k - 0.5) * 0.22, 0, 0);
+        pillGroup.add(cap);
+      }
+    } else if (i === 2) {
+      // Tray 3: Pink & orange round tablets
+      for (let k = 0; k < 4; k++) {
+        const color = k % 2 === 0 ? 0xff6b8a : 0xff9e44;
+        const pMesh = new THREE.Mesh(new THREE.CylinderGeometry(0.11, 0.11, 0.08, 16), new THREE.MeshStandardMaterial({ color }));
+        pMesh.position.set((k % 2 - 0.5) * 0.18, 0, (Math.floor(k / 2) - 0.5) * 0.18);
+        pillGroup.add(pMesh);
+      }
+    } else if (i === 3) {
+      // Tray 4: Translucent yellow gel caps
+      for (let k = 0; k < 3; k++) {
+        const gel = new THREE.Mesh(new THREE.SphereGeometry(0.11, 16, 16), new THREE.MeshPhysicalMaterial({ color: 0xffbe3c, transparent: true, opacity: 0.75, roughness: 0.1 }));
+        gel.position.set((k - 1) * 0.16, 0, 0);
+        pillGroup.add(gel);
+      }
+    } else if (i === 4) {
+      // Tray 5: B-12 yellow round tablets & blue pills (as in prompt rule)
+      for (let k = 0; k < 4; k++) {
+        const b12 = new THREE.Mesh(new THREE.CylinderGeometry(0.12, 0.12, 0.09, 16), new THREE.MeshStandardMaterial({ color: 0xffd026, roughness: 0.3 }));
+        b12.position.set((k % 2 - 0.5) * 0.18, 0, (Math.floor(k / 2) - 0.5) * 0.18);
+        pillGroup.add(b12);
+      }
+      const extraBlue = new THREE.Mesh(new THREE.CylinderGeometry(0.08, 0.08, 0.24, 16), new THREE.MeshStandardMaterial({ color: 0x3ee0ff }));
+      extraBlue.rotation.z = Math.PI / 2;
+      extraBlue.position.set(0, 0.1, 0);
+      pillGroup.add(extraBlue);
+    } else if (i === 5) {
+      // Tray 6: Green round tablets
+      for (let k = 0; k < 4; k++) {
+        const pMesh = new THREE.Mesh(new THREE.CylinderGeometry(0.12, 0.12, 0.08, 16), new THREE.MeshStandardMaterial({ color: 0x10b981 }));
+        pMesh.position.set((k % 2 - 0.5) * 0.18, 0, (Math.floor(k / 2) - 0.5) * 0.18);
+        pillGroup.add(pMesh);
+      }
+    } else if (i === 6) {
+      // Tray 7: Orange & white capsules
+      for (let k = 0; k < 2; k++) {
+        const cap = new THREE.Mesh(new THREE.CylinderGeometry(0.09, 0.09, 0.28, 16), new THREE.MeshStandardMaterial({ color: 0xff7e26 }));
+        cap.rotation.z = -Math.PI / 4;
+        cap.position.set((k - 0.5) * 0.22, 0, 0);
+        pillGroup.add(cap);
+      }
+    } else if (i === 7) {
+      // Tray 8: White capsules
+      for (let k = 0; k < 3; k++) {
+        const cap = new THREE.Mesh(new THREE.CylinderGeometry(0.08, 0.08, 0.26, 16), new THREE.MeshStandardMaterial({ color: 0xf5f7fb }));
+        cap.position.set((k - 1) * 0.16, 0, 0);
+        pillGroup.add(cap);
+      }
+    }
   }
 
-  // Suction pipes positioned over tray positions 1 and 8
+  // Suction pipes positioned over tray positions 1 and 8 as shown in the reference design
   const angle1 = 0; // Position 1
   const angle8 = ((compartmentCount - 1) / compartmentCount) * Math.PI * 2; // Position 8
 
-  function buildSuctionPipe(angle, colorHex, label) {
+  function buildSuctionAssembly(angle, colorHex, label) {
     const pipeGroup = new THREE.Group();
     const x = Math.cos(angle) * trayRadius;
-    const z = Math.sin(angle) * trayRadius;
+    const z = Math.sin(angle) * trayRadius + 0.3;
 
-    // Overhead Arm Mount
-    const armGeo = new THREE.BoxGeometry(0.3, 0.3, 1.4);
-    const armMat = new THREE.MeshStandardMaterial({ color: 0x30486c, metalness: 0.8, roughness: 0.2 });
+    // Overhead Bracket Arm
+    const armGeo = new THREE.BoxGeometry(0.28, 0.28, 1.2);
+    const armMat = new THREE.MeshStandardMaterial({ color: 0x243b5a, metalness: 0.8, roughness: 0.2 });
     const arm = new THREE.Mesh(armGeo, armMat);
-    arm.position.set(x * 0.7, 2.7, z * 0.7);
-    arm.lookAt(x, 2.7, z);
+    arm.position.set(x * 0.7, 2.5, z * 0.7);
+    arm.lookAt(x, 2.5, z);
     pipeGroup.add(arm);
 
-    // Suction Tube
-    const tubeGeo = new THREE.CylinderGeometry(0.08, 0.08, 1.4, 16);
-    const tubeMat = new THREE.MeshStandardMaterial({ color: colorHex, metalness: 0.85, roughness: 0.15 });
+    // Clear Flexible Pneumatic Hose
+    const tubeGeo = new THREE.CylinderGeometry(0.07, 0.07, 1.4, 16);
+    const tubeMat = new THREE.MeshPhysicalMaterial({
+      color: colorHex,
+      transparent: true,
+      opacity: 0.65,
+      transmission: 0.7,
+      roughness: 0.2
+    });
     const tube = new THREE.Mesh(tubeGeo, tubeMat);
-    tube.position.set(x, 1.9, z);
+    tube.position.set(x, 1.8, z);
     pipeGroup.add(tube);
 
+    // Chrome Collar Fitting
+    const collarGeo = new THREE.CylinderGeometry(0.14, 0.14, 0.2, 20);
+    const collarMat = new THREE.MeshStandardMaterial({ color: 0xffffff, metalness: 0.95, roughness: 0.1 });
+    const collar = new THREE.Mesh(collarGeo, collarMat);
+    collar.position.set(x, 1.2, z);
+    pipeGroup.add(collar);
+
     // Suction Nozzle / Cup
-    const nozzleGeo = new THREE.ConeGeometry(0.2, 0.28, 20);
+    const nozzleGeo = new THREE.ConeGeometry(0.18, 0.24, 20);
     const nozzleMat = new THREE.MeshStandardMaterial({ color: 0xffbe3c, roughness: 0.3 });
     const nozzle = new THREE.Mesh(nozzleGeo, nozzleMat);
-    nozzle.position.set(x, 1.15, z);
+    nozzle.position.set(x, 1.02, z);
     pipeGroup.add(nozzle);
 
-    // Indicator Sensor Light
-    const sensorGeo = new THREE.SphereGeometry(0.12, 16, 16);
+    // Pneumatic Indicator Sensor LED
+    const sensorGeo = new THREE.SphereGeometry(0.1, 16, 16);
     const sensorMat = new THREE.MeshBasicMaterial({ color: 0x3ee0ff });
     const sensor = new THREE.Mesh(sensorGeo, sensorMat);
-    sensor.position.set(x, 2.65, z);
+    sensor.position.set(x, 2.45, z);
     pipeGroup.add(sensor);
 
     return pipeGroup;
   }
 
-  const suctionPipe1 = buildSuctionPipe(angle1, 0x3ee0ff, "Position 1");
-  const suctionPipe8 = buildSuctionPipe(angle8, 0x7af0ff, "Position 8");
+  const suctionPipe1 = buildSuctionAssembly(angle1, 0x3ee0ff, "Position 1");
+  const suctionPipe8 = buildSuctionAssembly(angle8, 0x7af0ff, "Position 8");
   scene.add(suctionPipe1);
   scene.add(suctionPipe8);
 
-  // Active Dispensing Mechanism Assembly
+  // Active Dispensing Mechanism Gantry Assembly (Position 1)
   suctionGroup = new THREE.Group();
   scene.add(suctionGroup);
 
-  const gantryGeo = new THREE.CylinderGeometry(0.09, 0.09, 1.6, 16);
-  const gantryMat = new THREE.MeshStandardMaterial({ color: 0x9db4cc, metalness: 0.9, roughness: 0.2 });
-  const gantry = new THREE.Mesh(gantryGeo, gantryMat);
-  gantry.position.set(Math.cos(angle1) * trayRadius, 2.0, Math.sin(angle1) * trayRadius);
-  suctionGroup.add(gantry);
+  const gantryPiston = new THREE.Mesh(
+    new THREE.CylinderGeometry(0.08, 0.08, 1.5, 16),
+    new THREE.MeshStandardMaterial({ color: 0xffffff, metalness: 0.9, roughness: 0.15 })
+  );
+  gantryPiston.position.set(Math.cos(angle1) * trayRadius, 1.9, Math.sin(angle1) * trayRadius + 0.3);
+  suctionGroup.add(gantryPiston);
 
-  // Active Picked Pill (initially hidden)
-  const pillGeo = new THREE.CylinderGeometry(0.24, 0.24, 0.13, 20);
-  const pillMat = new THREE.MeshStandardMaterial({ color: 0xff6b8a, roughness: 0.2, metalness: 0.1 });
+  // Active Picked Pill (lifts from tray to chute during dispense)
+  const pillGeo = new THREE.CylinderGeometry(0.22, 0.22, 0.11, 20);
+  const pillMat = new THREE.MeshStandardMaterial({ color: 0xffd026, roughness: 0.2, metalness: 0.1 });
   pillMesh = new THREE.Mesh(pillGeo, pillMat);
-  pillMesh.position.set(Math.cos(angle1) * trayRadius, 1.05, Math.sin(angle1) * trayRadius);
+  pillMesh.position.set(Math.cos(angle1) * trayRadius, 0.95, Math.sin(angle1) * trayRadius + 0.3);
   pillMesh.visible = false;
   scene.add(pillMesh);
-
-  // Medicine Output / Dispensing Chute Area
-  const chuteGeo = new THREE.BoxGeometry(1.2, 0.8, 1.4);
-  const chuteMat = new THREE.MeshStandardMaterial({ color: 0x132a48, metalness: 0.7, roughness: 0.3 });
-  const chute = new THREE.Mesh(chuteGeo, chuteMat);
-  chute.position.set(0, 0.4, 4.3);
-  scene.add(chute);
-
-  const chuteTrayGeo = new THREE.BoxGeometry(0.9, 0.2, 0.9);
-  const chuteTrayMat = new THREE.MeshStandardMaterial({ color: 0x5dffc4, metalness: 0.4, roughness: 0.4 });
-  const chuteTray = new THREE.Mesh(chuteTrayGeo, chuteTrayMat);
-  chuteTray.position.set(0, 0.12, 4.5);
-  scene.add(chuteTray);
-
-  // Sensors & Alarm Unit
-  const alarmBoxGeo = new THREE.BoxGeometry(0.9, 0.7, 0.4);
-  const alarmBoxMat = new THREE.MeshStandardMaterial({ color: 0x162c4a, metalness: 0.7, roughness: 0.3 });
-  const alarmBox = new THREE.Mesh(alarmBoxGeo, alarmBoxMat);
-  alarmBox.position.set(-3.2, 1.2, 0);
-  scene.add(alarmBox);
-
-  const alarmLedGeo = new THREE.SphereGeometry(0.16, 16, 16);
-  const alarmLedMat = new THREE.MeshBasicMaterial({ color: 0xffbe3c });
-  const alarmLed = new THREE.Mesh(alarmLedGeo, alarmLedMat);
-  alarmLed.position.set(-3.2, 1.62, 0);
-  scene.add(alarmLed);
 
   // Mouse Orbit Controls (drag to rotate view)
   let isDragging = false;
   let prevMouseX = 0;
   let prevMouseY = 0;
-  let spherical = { radius: 12.5, phi: Math.PI / 3.4, theta: 0.2 };
+  let spherical = { radius: 12.0, phi: Math.PI / 3.4, theta: 0.2 };
 
   function updateCameraPos() {
     camera.position.x = spherical.radius * Math.sin(spherical.phi) * Math.sin(spherical.theta);
@@ -579,7 +941,7 @@ function initMedisort3D() {
     "wheel",
     (e) => {
       e.preventDefault();
-      spherical.radius = Math.max(7, Math.min(18, spherical.radius + e.deltaY * 0.01));
+      spherical.radius = Math.max(6.5, Math.min(18, spherical.radius + e.deltaY * 0.01));
       updateCameraPos();
     },
     { passive: false }
@@ -596,10 +958,10 @@ function initMedisort3D() {
       trayGroup.rotation.y += (trayTargetAngle - trayGroup.rotation.y) * 0.08;
     }
 
-    // Gentle alarm pulse
+    // Pulse Child & Pet proof security light
     if (alarmLed) {
-      const pulse = 0.5 + 0.5 * Math.sin(clock.getElapsedTime() * 4);
-      alarmLed.scale.setScalar(0.9 + 0.2 * pulse);
+      const pulse = 0.5 + 0.5 * Math.sin(clock.getElapsedTime() * 3);
+      alarmLed.scale.setScalar(0.9 + 0.18 * pulse);
     }
 
     renderer.render(scene, camera);
@@ -621,12 +983,34 @@ function initMedisort3D() {
 }
 
 /* ==========================================================================
-   5. Slide 11 Controls & 6-Step Dispense Sequence
+   5. Slide 11 Controls, View Toggle & 6-Step Dispense Sequence
    ========================================================================== */
 const rotateTrayBtn = document.getElementById("btn-rotate-tray");
 const dispenseBtn = document.getElementById("btn-dispense");
 const resetTrayBtn = document.getElementById("btn-reset-tray");
 const medisortStatus = document.getElementById("medisort-status");
+
+const btnView3D = document.getElementById("btn-view-3d");
+const btnViewConcept = document.getElementById("btn-view-concept");
+const pane3D = document.getElementById("pane-3d");
+const paneConcept = document.getElementById("pane-concept");
+
+if (btnView3D && btnViewConcept && pane3D && paneConcept) {
+  btnView3D.addEventListener("click", () => {
+    btnView3D.classList.add("active");
+    btnViewConcept.classList.remove("active");
+    pane3D.classList.remove("hidden-layout");
+    paneConcept.classList.add("hidden-layout");
+    if (resizeRenderer) setTimeout(resizeRenderer, 120);
+  });
+
+  btnViewConcept.addEventListener("click", () => {
+    btnViewConcept.classList.add("active");
+    btnView3D.classList.remove("active");
+    paneConcept.classList.remove("hidden-layout");
+    pane3D.classList.add("hidden-layout");
+  });
+}
 
 function setStatus(text, color = "var(--cyan)") {
   if (medisortStatus) {
@@ -650,7 +1034,10 @@ if (resetTrayBtn) {
     trayTargetAngle = 0;
     if (pillMesh) {
       pillMesh.visible = false;
-      pillMesh.position.set(2.45, 1.05, 0);
+      pillMesh.position.set(2.05, 0.95, 0.3);
+    }
+    if (dispensedPillMesh) {
+      dispensedPillMesh.visible = false;
     }
     if (suctionGroup) suctionGroup.position.set(0, 0, 0);
     setStatus("Reset complete");
@@ -666,7 +1053,7 @@ if (dispenseBtn) {
 
     // Step 1: The tray rotates to the required position.
     setStatus("1. Tray rotates to required position", "var(--amber)");
-    trayTargetAngle = 0; // Align position 1 with primary suction pipe
+    trayTargetAngle = Math.PI; // Rotate Tray 5 into position
     await delay(800);
 
     // Step 2: The correct compartment aligns with the suction pipe.
@@ -677,7 +1064,7 @@ if (dispenseBtn) {
     setStatus("3. Suction mechanism activates", "var(--mint)");
     if (suctionGroup) {
       // Lower suction mechanism
-      await animateValue(0, -0.65, 500, (v) => (suctionGroup.position.y = v));
+      await animateValue(0, -0.6, 500, (v) => (suctionGroup.position.y = v));
     }
     await delay(300);
 
@@ -685,43 +1072,46 @@ if (dispenseBtn) {
     setStatus("4. Medicine picked up", "var(--mint)");
     if (pillMesh) {
       pillMesh.visible = true;
-      pillMesh.position.set(2.45, 0.7, 0);
+      pillMesh.position.set(2.05, 0.65, 0.3);
     }
     // Raise suction and pill together
-    await animateValue(-0.65, 0.4, 600, (v) => {
+    await animateValue(-0.6, 0.4, 600, (v) => {
       if (suctionGroup) suctionGroup.position.y = v;
-      if (pillMesh) pillMesh.position.y = 1.35 + v;
+      if (pillMesh) pillMesh.position.y = 1.25 + v;
     });
 
     // Step 5: The medicine travels toward the dispensing area.
     setStatus("5. Medicine travels to dispensing area", "var(--amber)");
     await animateValue(0, 1, 900, (t) => {
-      // Arc toward chute at (0, 0.4, 4.3)
-      const curX = 2.45 * (1 - t);
-      const curZ = 4.3 * t;
+      // Arc toward chute at (0, 0.35, 3.2)
+      const curX = 2.05 * (1 - t);
+      const curZ = 0.3 + 2.9 * t;
       const curY = 1.6 + Math.sin(t * Math.PI) * 0.4;
       if (pillMesh) pillMesh.position.set(curX, curY, curZ);
-      if (suctionGroup) suctionGroup.position.set(curX - 2.45, curY - 1.6, curZ);
+      if (suctionGroup) suctionGroup.position.set(curX - 2.05, curY - 1.6, curZ - 0.3);
     });
 
     // Step 6: The medicine is released.
     setStatus("6. Medicine released into output area", "var(--mint)");
     // Drop pill into chute
-    await animateValue(1.6, 0.3, 400, (y) => {
+    await animateValue(1.6, 0.35, 350, (y) => {
       if (pillMesh) pillMesh.position.y = y;
     });
+    if (pillMesh) pillMesh.visible = false;
+    if (dispensedPillMesh) dispensedPillMesh.visible = true;
+
     // Retract suction mechanism back home
-    await delay(300);
+    await delay(250);
     if (suctionGroup) {
-      await animateValue(0, 1, 600, (t) => {
-        suctionGroup.position.x = (1 - t) * (0 - 2.45) + t * 0;
-        suctionGroup.position.z = (1 - t) * 4.3 + t * 0;
-        suctionGroup.position.y = (1 - t) * 0 + t * 0;
+      await animateValue(0, 1, 550, (t) => {
+        suctionGroup.position.x = (1 - t) * (0 - 2.05);
+        suctionGroup.position.z = (1 - t) * 2.9;
+        suctionGroup.position.y = (1 - t) * (0.35 - 1.6);
       });
       suctionGroup.position.set(0, 0, 0);
     }
 
-    setStatus("Dispense complete", "var(--cyan-2)");
+    setStatus("Dispense complete • Verified 1 pill (0.52g)", "var(--cyan-2)");
     dispenseBtn.disabled = false;
     isDispensing = false;
   });
