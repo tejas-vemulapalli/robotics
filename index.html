@@ -1,0 +1,706 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Robotics Presentation</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Exo+2:ital,wght@0,300..800;1,300..800&family=Orbitron:wght@500;700;900&display=swap"
+      rel="stylesheet"
+    />
+    <script type="module" crossorigin src="./assets/index-D8TQvlGv.js"></script>
+    <link rel="stylesheet" crossorigin href="./assets/index-ByAU0W8B.css">
+  </head>
+  <body>
+    <div id="app">
+      <main class="deck" id="deck">
+        <!-- Slide 1 -->
+        <section class="slide slide-title active" data-slide="1" aria-label="Slide 1">
+          <div class="expo-ring"></div>
+          <div class="scanline"></div>
+          <div class="title-stage">
+            <svg class="bot-silhouette" viewBox="0 0 240 240" fill="none">
+              <circle cx="120" cy="120" r="100" stroke="rgba(62,224,255,0.25)" stroke-width="2" stroke-dasharray="6 6"/>
+              <circle cx="120" cy="120" r="70" stroke="rgba(139,124,255,0.3)" stroke-width="2"/>
+              <rect x="75" y="70" width="90" height="74" rx="20" fill="rgba(16,32,56,0.8)" stroke="#3ee0ff" stroke-width="2.5"/>
+              <rect x="92" y="92" width="16" height="16" rx="4" fill="#3ee0ff"/>
+              <rect x="132" y="92" width="16" height="16" rx="4" fill="#3ee0ff"/>
+              <path d="M100 124 Q120 134 140 124" stroke="#7af0ff" stroke-width="3" stroke-linecap="round"/>
+              <path d="M120 40 L120 70" stroke="#ffbe3c" stroke-width="3"/>
+              <circle cx="120" cy="36" r="6" fill="#ffbe3c"/>
+              <path d="M54 100 L75 100 M165 100 L186 100" stroke="#3ee0ff" stroke-width="3"/>
+              <rect x="65" y="152" width="110" height="54" rx="14" fill="rgba(16,32,56,0.8)" stroke="#8b7cff" stroke-width="2"/>
+              <line x1="85" y1="172" x2="155" y2="172" stroke="rgba(62,224,255,0.5)" stroke-width="2"/>
+              <line x1="85" y1="184" x2="135" y2="184" stroke="rgba(62,224,255,0.5)" stroke-width="2"/>
+            </svg>
+            <h1>Robotics Presentation</h1>
+            <p class="title-sub">World Of Robots</p>
+            <div class="title-credits">
+              <span class="credit-pill">Content prepared by <strong>Tejas Vemulapalli</strong> and presentation generated using <strong>Cursor</strong></span>
+            </div>
+          </div>
+        </section>
+
+        <!-- Slide 2 -->
+        <section class="slide" data-slide="2" aria-label="Slide 2">
+          <div class="kicker">Core Concepts</div>
+          <div class="four-grid">
+            <article class="panel answer-card">
+              <p>A physical robot is a real world machine that can move, perform tasks, and interact with its area of operation.</p>
+            </article>
+            <article class="panel answer-card">
+              <p>AI is a type of software that replicates the learning, problem solving, and decision-making of a human.</p>
+            </article>
+            <article class="panel answer-card">
+              <p>The word robot was first used by a writer called Karel Čapek in the year 1920 in his play, R.U.R.(Rossum’s Universal Robots).</p>
+            </article>
+            <article class="panel answer-card">
+              <p>AI and robots can work together by using AI for the brains of the team and the robots for the physical output.</p>
+            </article>
+          </div>
+        </section>
+
+        <!-- Slide 3 -->
+        <section class="slide" data-slide="3" aria-label="Slide 3">
+          <div class="match-layout">
+            <div class="match-header">
+              <div class="kicker">Terminology Matching</div>
+              <p style="font-size: 0.95rem; color: var(--muted); margin-bottom: 6px;">Interactive Part: Start of with the definitions and the vocabulary separated, then make an animation of them going to the right place when a button called “Match” is clicked</p>
+            </div>
+
+            <div class="match-arena" id="match-arena">
+              <svg class="match-svg-canvas" id="match-svg" aria-hidden="true"></svg>
+
+              <div class="match-columns" id="unmatched-columns">
+                <div class="panel match-panel vocab-panel">
+                  <div class="col-title">Vocabulary</div>
+                  <div class="term-stack" id="vocab-stack"></div>
+                </div>
+                <div class="panel match-panel def-panel">
+                  <div class="col-title">Definitions</div>
+                  <div class="def-stack" id="def-stack"></div>
+                </div>
+              </div>
+            </div>
+
+            <div class="match-actions">
+              <button class="action-btn" id="match-btn" type="button">Match</button>
+            </div>
+          </div>
+        </section>
+
+        <!-- Slide 4 -->
+        <section class="slide" data-slide="4" aria-label="Slide 4">
+          <div class="classify-layout">
+            <div>
+              <div class="kicker">Classification Matrix</div>
+              <div class="zones">
+                <div class="panel zone" data-zone="AI">
+                  <h3>AI</h3>
+                  <div class="zone-body" id="zone-ai"></div>
+                </div>
+                <div class="panel zone" data-zone="Robot">
+                  <h3>Robot</h3>
+                  <div class="zone-body" id="zone-robot"></div>
+                </div>
+                <div class="panel zone" data-zone="Both">
+                  <h3>Both</h3>
+                  <div class="zone-body" id="zone-both"></div>
+                </div>
+              </div>
+            </div>
+
+            <div>
+              <div class="col-title" style="margin-bottom: 6px;">Select an item to classify &amp; reveal reasoning:</div>
+              <div class="examples" id="specimens-row"></div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Slide 5 -->
+        <section class="slide" data-slide="5" aria-label="Slide 5">
+          <div style="height: 100%; display: grid; grid-template-rows: auto 1fr; gap: 14px;">
+            <div>
+              <div class="kicker">Robotics In Practice</div>
+              <p style="font-size: 1.05rem; color: var(--cyan-2); font-family: var(--font-display);">Moving, interactive Image of a Delta Robot, Infrastructure drones, and Laparoscopic consoles ( All with labels of names and parts).</p>
+            </div>
+            <div class="machines" id="machines-container">
+              <!-- Delta Robot -->
+              <article class="panel machine-card">
+                <div class="machine-name">Delta Robot</div>
+                <div class="machine-art">
+                  <svg viewBox="0 0 340 320">
+                    <defs>
+                      <filter id="glow" x="-20%" y="-20%" width="140%" height="140%">
+                        <feGaussianBlur stdDeviation="3" result="blur" />
+                        <feComposite in="SourceGraphic" in2="blur" operator="over" />
+                      </filter>
+                    </defs>
+                    <!-- Top Base Plate -->
+                    <rect x="70" y="20" width="200" height="24" rx="8" fill="#173154" stroke="#3ee0ff" stroke-width="2"/>
+                    <text x="170" y="36" class="part-label" text-anchor="middle">Base Plate</text>
+
+                    <!-- Actuator Servos -->
+                    <g class="hotspot" data-part="Actuators">
+                      <circle cx="100" cy="54" r="12" fill="#ffbe3c" stroke="#fff" stroke-width="1.5"/>
+                      <circle cx="170" cy="54" r="12" fill="#ffbe3c" stroke="#fff" stroke-width="1.5"/>
+                      <circle cx="240" cy="54" r="12" fill="#ffbe3c" stroke="#fff" stroke-width="1.5"/>
+                      <text x="170" y="78" class="part-label" text-anchor="middle">Actuator Motors</text>
+                    </g>
+
+                    <!-- Upper Parallel Arms -->
+                    <g class="delta-arm a1">
+                      <line x1="100" y1="54" x2="120" y2="130" stroke="#7af0ff" stroke-width="5" stroke-linecap="round"/>
+                      <line x1="108" y1="54" x2="128" y2="130" stroke="#7af0ff" stroke-width="3" stroke-linecap="round"/>
+                    </g>
+                    <g class="delta-arm a2">
+                      <line x1="170" y1="54" x2="170" y2="136" stroke="#7af0ff" stroke-width="5" stroke-linecap="round"/>
+                      <line x1="176" y1="54" x2="176" y2="136" stroke="#7af0ff" stroke-width="3" stroke-linecap="round"/>
+                    </g>
+                    <g class="delta-arm a3">
+                      <line x1="240" y1="54" x2="220" y2="130" stroke="#7af0ff" stroke-width="5" stroke-linecap="round"/>
+                      <line x1="232" y1="54" x2="212" y2="130" stroke="#7af0ff" stroke-width="3" stroke-linecap="round"/>
+                    </g>
+                    <text x="32" y="110" class="part-label">Upper Arms</text>
+                    <line x1="78" y1="108" x2="114" y2="108" stroke="#3ee0ff" stroke-width="1" stroke-dasharray="2 2"/>
+
+                    <!-- Lower Parallel Rods / Forearms -->
+                    <line x1="120" y1="130" x2="150" y2="230" stroke="#5dffc4" stroke-width="4" stroke-linecap="round"/>
+                    <line x1="170" y1="136" x2="170" y2="230" stroke="#5dffc4" stroke-width="4" stroke-linecap="round"/>
+                    <line x1="220" y1="130" x2="190" y2="230" stroke="#5dffc4" stroke-width="4" stroke-linecap="round"/>
+                    <text x="246" y="190" class="part-label">Parallel Forearms</text>
+                    <line x1="242" y1="188" x2="196" y2="188" stroke="#5dffc4" stroke-width="1" stroke-dasharray="2 2"/>
+
+                    <!-- Traveling Plate & Gripper -->
+                    <g class="hotspot" data-part="Gripper">
+                      <rect x="140" y="230" width="60" height="14" rx="4" fill="#8b7cff" stroke="#3ee0ff" stroke-width="1.5"/>
+                      <text x="170" y="260" class="part-label" text-anchor="middle">Traveling Plate / Gripper</text>
+                      <path d="M152 244 L152 272 M188 244 L188 272" stroke="#ffbe3c" stroke-width="4" stroke-linecap="round"/>
+                    </g>
+                  </svg>
+                </div>
+              </article>
+
+              <!-- Infrastructure drones -->
+              <article class="panel machine-card">
+                <div class="machine-name">Infrastructure drones</div>
+                <div class="machine-art">
+                  <svg viewBox="0 0 340 320">
+                    <!-- Central Body -->
+                    <ellipse cx="170" cy="150" rx="46" ry="26" fill="#142642" stroke="#3ee0ff" stroke-width="2.5"/>
+                    <text x="170" y="148" class="part-label" text-anchor="middle">Airframe</text>
+
+                    <!-- Carbon Fiber Arms -->
+                    <line x1="134" y1="134" x2="60" y2="80" stroke="#8b7cff" stroke-width="6" stroke-linecap="round"/>
+                    <line x1="206" y1="134" x2="280" y2="80" stroke="#8b7cff" stroke-width="6" stroke-linecap="round"/>
+                    <line x1="134" y1="166" x2="60" y2="220" stroke="#8b7cff" stroke-width="6" stroke-linecap="round"/>
+                    <line x1="206" y1="166" x2="280" y2="220" stroke="#8b7cff" stroke-width="6" stroke-linecap="round"/>
+                    <text x="44" y="62" class="part-label">Carbon Spar</text>
+
+                    <!-- Rotors -->
+                    <g class="hotspot" data-part="Rotors">
+                      <g class="rotor" style="transform-origin: 60px 80px;">
+                        <circle cx="60" cy="80" r="10" fill="#ffbe3c"/>
+                        <ellipse cx="60" cy="80" rx="36" ry="5" fill="none" stroke="#3ee0ff" stroke-width="2"/>
+                      </g>
+                      <g class="rotor" style="transform-origin: 280px 80px;">
+                        <circle cx="280" cy="80" r="10" fill="#ffbe3c"/>
+                        <ellipse cx="280" cy="80" rx="36" ry="5" fill="none" stroke="#3ee0ff" stroke-width="2"/>
+                      </g>
+                      <g class="rotor" style="transform-origin: 60px 220px;">
+                        <circle cx="60" cy="220" r="10" fill="#ffbe3c"/>
+                        <ellipse cx="60" cy="220" rx="36" ry="5" fill="none" stroke="#3ee0ff" stroke-width="2"/>
+                      </g>
+                      <g class="rotor" style="transform-origin: 280px 220px;">
+                        <circle cx="280" cy="220" r="10" fill="#ffbe3c"/>
+                        <ellipse cx="280" cy="220" rx="36" ry="5" fill="none" stroke="#3ee0ff" stroke-width="2"/>
+                      </g>
+                      <text x="280" y="60" class="part-label" text-anchor="middle">Propeller &amp; Motor</text>
+                    </g>
+
+                    <!-- LiDAR / Thermal Sensor Gimbal -->
+                    <g class="hotspot" data-part="Sensor Gimbal">
+                      <rect x="152" y="166" width="36" height="24" rx="6" fill="#ff6b8a" stroke="#fff" stroke-width="1.5"/>
+                      <circle cx="170" cy="178" r="6" fill="#0b1424"/>
+                      <text x="170" y="208" class="part-label" text-anchor="middle">LiDAR &amp; Thermal Camera</text>
+                    </g>
+
+                    <!-- GPS / Telemetry Dome -->
+                    <circle cx="170" cy="128" r="8" fill="#5dffc4"/>
+                    <text x="170" y="118" class="part-label" text-anchor="middle">GPS / Telemetry</text>
+
+                    <!-- Landing Skid -->
+                    <path d="M120 176 L110 240 M220 176 L230 240 M90 240 L130 240 M210 240 L250 240" stroke="#9db4cc" stroke-width="3" stroke-linecap="round"/>
+                    <text x="170" y="258" class="part-label" text-anchor="middle">Landing Gear</text>
+                  </svg>
+                </div>
+              </article>
+
+              <!-- Laparoscopic consoles -->
+              <article class="panel machine-card">
+                <div class="machine-name">Laparoscopic consoles</div>
+                <div class="machine-art">
+                  <svg viewBox="0 0 340 320">
+                    <!-- Console Frame -->
+                    <path d="M50 260 L80 80 L260 80 L290 260 Z" fill="#0e1d33" stroke="#3ee0ff" stroke-width="2"/>
+                    
+                    <!-- 3D Stereo Viewer -->
+                    <g class="hotspot" data-part="Stereo Viewer">
+                      <rect x="110" y="96" width="120" height="42" rx="10" fill="#1b3964" stroke="#7af0ff" stroke-width="2"/>
+                      <ellipse cx="145" cy="117" rx="14" ry="10" fill="#070b14" stroke="#3ee0ff"/>
+                      <ellipse cx="195" cy="117" rx="14" ry="10" fill="#070b14" stroke="#3ee0ff"/>
+                      <text x="170" y="90" class="part-label" text-anchor="middle">3D Stereo Viewer</text>
+                    </g>
+
+                    <!-- Master Tool Grips / Manipulators -->
+                    <g class="lap-arm" style="transform-origin: 90px 170px;">
+                      <line x1="90" y1="170" x2="124" y2="190" stroke="#ffbe3c" stroke-width="4" stroke-linecap="round"/>
+                      <circle cx="128" cy="192" r="7" fill="#ffbe3c"/>
+                    </g>
+                    <g class="lap-arm" style="transform-origin: 250px 170px; animation-delay: -1.6s;">
+                      <line x1="250" y1="170" x2="216" y2="190" stroke="#ffbe3c" stroke-width="4" stroke-linecap="round"/>
+                      <circle cx="212" cy="192" r="7" fill="#ffbe3c"/>
+                    </g>
+                    <text x="170" y="172" class="part-label" text-anchor="middle">Master Tool Grips</text>
+
+                    <!-- Articulated Patient Arm Visual -->
+                    <g class="hotspot" data-part="Robotic Arms">
+                      <rect x="120" y="210" width="100" height="26" rx="6" fill="#162e50" stroke="#8b7cff" stroke-width="1.5"/>
+                      <text x="170" y="227" class="part-label" text-anchor="middle">Arm Teleoperation</text>
+                    </g>
+
+                    <!-- Foot Pedal Unit -->
+                    <rect x="120" y="266" width="100" height="18" rx="4" fill="#ff6b8a" opacity="0.9"/>
+                    <text x="170" y="298" class="part-label" text-anchor="middle">Foot Pedal Controls</text>
+                  </svg>
+                </div>
+              </article>
+            </div>
+          </div>
+        </section>
+
+        <!-- Slide 6 -->
+        <section class="slide" data-slide="6" aria-label="Slide 6">
+          <div class="humanoid-layout">
+            <div class="panel" style="padding: 34px;">
+              <h2 class="question">Are Humanoids Necessary?</h2>
+              <p class="body-copy">Not all robots need to look like humans because some robots are more efficient when optimally designed. This also saves resources to make more robots. In certain cases human robots ruin the point of making a robot especially in nano-tech robots used for medical purposes like point specific drug delivery. Some common non-humanoid robots include the dishwasher, the printer, and the claw-grabber.</p>
+            </div>
+
+            <div class="panel" style="padding: 24px; display: flex; flex-direction: column; gap: 14px;">
+              <div class="col-title">Specialized Non-Humanoid Profiles:</div>
+              <div class="vis-row">
+                <!-- Dishwasher -->
+                <div class="panel mini-bot">
+                  <svg viewBox="0 0 160 140" style="width: 100%; height: 100%;">
+                    <rect x="25" y="15" width="110" height="110" rx="8" fill="#132742" stroke="#3ee0ff" stroke-width="2"/>
+                    <rect x="35" y="25" width="90" height="14" fill="#070b14"/>
+                    <circle cx="45" cy="32" r="3" fill="#5dffc4"/>
+                    <line x1="35" y1="55" x2="125" y2="55" stroke="rgba(62,224,255,0.4)" stroke-width="2"/>
+                    <line x1="35" y1="85" x2="125" y2="85" stroke="rgba(62,224,255,0.4)" stroke-width="2"/>
+                    <path d="M80 64 L70 80 M80 64 L90 80" stroke="#3ee0ff" stroke-width="2" stroke-linecap="round"/>
+                    <text x="80" y="112" class="part-label" text-anchor="middle">Dishwasher</text>
+                  </svg>
+                </div>
+                <!-- Printer -->
+                <div class="panel mini-bot">
+                  <svg viewBox="0 0 160 140" style="width: 100%; height: 100%;">
+                    <rect x="25" y="45" width="110" height="60" rx="8" fill="#132742" stroke="#8b7cff" stroke-width="2"/>
+                    <rect x="45" y="20" width="70" height="30" fill="#eef6ff" opacity="0.9"/>
+                    <line x1="55" y1="30" x2="105" y2="30" stroke="#070b14" stroke-width="1.5"/>
+                    <line x1="55" y1="38" x2="95" y2="38" stroke="#070b14" stroke-width="1.5"/>
+                    <rect x="40" y="90" width="80" height="25" fill="#eef6ff" opacity="0.9"/>
+                    <text x="80" y="80" class="part-label" text-anchor="middle">Printer</text>
+                  </svg>
+                </div>
+              </div>
+
+              <div class="vis-row">
+                <!-- Claw Grabber -->
+                <div class="panel mini-bot">
+                  <svg viewBox="0 0 160 140" style="width: 100%; height: 100%;">
+                    <line x1="80" y1="10" x2="80" y2="55" stroke="#ffbe3c" stroke-width="4"/>
+                    <circle cx="80" cy="58" r="10" fill="#ffbe3c"/>
+                    <path d="M72 65 Q50 85 55 110" fill="none" stroke="#3ee0ff" stroke-width="4" stroke-linecap="round"/>
+                    <path d="M88 65 Q110 85 105 110" fill="none" stroke="#3ee0ff" stroke-width="4" stroke-linecap="round"/>
+                    <text x="80" y="130" class="part-label" text-anchor="middle">Claw-Grabber</text>
+                  </svg>
+                </div>
+                <!-- Nano-tech medical robot -->
+                <div class="panel mini-bot">
+                  <svg viewBox="0 0 160 140" style="width: 100%; height: 100%;">
+                    <circle cx="80" cy="65" r="30" fill="rgba(255,107,138,0.15)" stroke="#ff6b8a" stroke-width="2"/>
+                    <ellipse cx="80" cy="65" rx="18" ry="10" fill="#5dffc4"/>
+                    <path d="M50 65 L30 65 M110 65 L130 65 M80 35 L80 18 M80 95 L80 112" stroke="#ffbe3c" stroke-width="2"/>
+                    <text x="80" y="128" class="part-label" text-anchor="middle">Nano-tech Drug Delivery</text>
+                  </svg>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Slide 7 -->
+        <section class="slide" data-slide="7" aria-label="Slide 7">
+          <div class="split-visual">
+            <div class="panel caption">
+              <div class="kicker">Historical Automation</div>
+              <p>Leonardo da Vinci’s Mechanical knight was an armoured humanoid machine powered by internal pulleys, cables, and gears. It was used in plays around 14495 driven by an internal or external mechanical crank, hand weights, or springs. It moved it’s arms, legs and turned it’s head but it’s most confusing part for the audience is when it opens it’s helmet. It was the pinnacle of mechanics at the time.</p>
+            </div>
+
+            <div class="panel viz-frame">
+              <svg viewBox="0 0 420 540">
+                <!-- Cables & Pulleys backdrop -->
+                <g stroke="#3ee0ff" stroke-width="1.5" stroke-dasharray="4 4" opacity="0.65">
+                  <line x1="210" y1="130" x2="160" y2="230"/>
+                  <line x1="210" y1="130" x2="260" y2="230"/>
+                  <line x1="160" y1="230" x2="175" y2="390"/>
+                  <line x1="260" y1="230" x2="245" y2="390"/>
+                </g>
+
+                <!-- Pulley Wheels -->
+                <circle cx="160" cy="230" r="10" fill="#132742" stroke="#ffbe3c" stroke-width="2"/>
+                <circle cx="260" cy="230" r="10" fill="#132742" stroke="#ffbe3c" stroke-width="2"/>
+                <circle cx="210" cy="180" r="14" fill="#132742" stroke="#ffbe3c" stroke-width="2"/>
+
+                <!-- Mechanical Crank / Gears -->
+                <g class="crank-spin" style="transform-origin: 340px 240px;">
+                  <circle cx="340" cy="240" r="22" fill="#102038" stroke="#ffbe3c" stroke-width="3"/>
+                  <line x1="340" y1="240" x2="362" y2="218" stroke="#ffbe3c" stroke-width="4" stroke-linecap="round"/>
+                  <circle cx="362" cy="218" r="6" fill="#eef6ff"/>
+                </g>
+                <text x="340" y="280" class="part-label" text-anchor="middle">Mechanical Crank</text>
+
+                <!-- Internal Gears -->
+                <g class="gear-spin" style="transform-origin: 210px 270px;">
+                  <circle cx="210" cy="270" r="24" fill="#162e50" stroke="#8b7cff" stroke-width="3" stroke-dasharray="6 4"/>
+                  <circle cx="210" cy="270" r="6" fill="#ffbe3c"/>
+                </g>
+                <text x="210" y="274" class="part-label" text-anchor="middle">Gears</text>
+
+                <!-- Legs -->
+                <g class="knight-leg-l">
+                  <rect x="165" y="320" width="28" height="90" rx="8" fill="#203a60" stroke="#3ee0ff" stroke-width="2"/>
+                  <rect x="160" y="406" width="34" height="24" rx="6" fill="#162c4a" stroke="#7af0ff" stroke-width="1.5"/>
+                </g>
+                <g class="knight-leg-r">
+                  <rect x="225" y="320" width="28" height="90" rx="8" fill="#203a60" stroke="#3ee0ff" stroke-width="2"/>
+                  <rect x="226" y="406" width="34" height="24" rx="6" fill="#162c4a" stroke="#7af0ff" stroke-width="1.5"/>
+                </g>
+
+                <!-- Torso Armour -->
+                <path d="M160 170 L260 170 L248 324 L172 324 Z" fill="#25436e" stroke="#3ee0ff" stroke-width="2.5"/>
+                <line x1="210" y1="170" x2="210" y2="324" stroke="rgba(255,255,255,0.25)" stroke-width="2"/>
+                <text x="210" y="215" class="part-label" text-anchor="middle">Armour</text>
+
+                <!-- Arms -->
+                <g class="knight-arm-l">
+                  <rect x="124" y="174" width="24" height="88" rx="8" fill="#1b3558" stroke="#3ee0ff" stroke-width="2"/>
+                  <circle cx="136" cy="268" r="8" fill="#ffbe3c"/>
+                </g>
+                <g class="knight-arm-r">
+                  <rect x="272" y="174" width="24" height="88" rx="8" fill="#1b3558" stroke="#3ee0ff" stroke-width="2"/>
+                  <circle cx="284" cy="268" r="8" fill="#ffbe3c"/>
+                </g>
+
+                <!-- Head and Opening Helmet -->
+                <g class="knight-head">
+                  <!-- Neck -->
+                  <rect x="198" y="146" width="24" height="26" fill="#162c4a"/>
+                  <!-- Base Helmet / Head -->
+                  <rect x="180" y="90" width="60" height="60" rx="14" fill="#2d5186" stroke="#3ee0ff" stroke-width="2"/>
+                  <!-- Opening Visor / Helmet Lid -->
+                  <g class="helmet-lid">
+                    <path d="M178 94 L242 94 L240 126 L178 126 Z" fill="#3a67a8" stroke="#ffbe3c" stroke-width="2"/>
+                    <line x1="188" y1="110" x2="232" y2="110" stroke="#070b14" stroke-width="3"/>
+                  </g>
+                  <!-- Pulley attached to head -->
+                  <circle cx="210" cy="74" r="7" fill="#ffbe3c"/>
+                  <line x1="210" y1="74" x2="210" y2="90" stroke="#3ee0ff" stroke-width="2"/>
+                </g>
+                <text x="210" y="62" class="part-label" text-anchor="middle">Opening Helmet &amp; Pulleys</text>
+                <text x="120" y="470" class="part-label">Internal cables &amp; pulleys</text>
+                <text x="270" y="470" class="part-label">Moving arms &amp; legs</text>
+              </svg>
+            </div>
+          </div>
+        </section>
+
+        <!-- Slide 8 -->
+        <section class="slide" data-slide="8" aria-label="Slide 8">
+          <div class="split-visual">
+            <div class="panel caption">
+              <div class="kicker">Ancient Mechanics</div>
+              <p>Early automation was the self-operating use of mechanical water powered machines. In Egypt and Greece, they used water to track time automatically. Hero of Alexandria created a fountain using water pressure.</p>
+            </div>
+
+            <div class="panel viz-frame">
+              <svg viewBox="0 0 460 520">
+                <!-- Greco-Egyptian Pedestal & Pillar Architecture -->
+                <rect x="40" y="430" width="380" height="28" rx="4" fill="#192d47" stroke="#3ee0ff" stroke-width="2"/>
+                <rect x="60" y="160" width="24" height="270" fill="#13243a" stroke="rgba(62,224,255,0.4)" stroke-width="1.5"/>
+                <rect x="376" y="160" width="24" height="270" fill="#13243a" stroke="rgba(62,224,255,0.4)" stroke-width="1.5"/>
+                <text x="230" y="450" class="part-label" text-anchor="middle">Egypt &amp; Greece: Water-Powered Automation &amp; Timekeeping</text>
+
+                <!-- Hero of Alexandria Fountain System (Upper & Lower Chambers) -->
+                <!-- Upper Basin -->
+                <ellipse cx="230" cy="110" rx="90" ry="24" fill="#142c4a" stroke="#3ee0ff" stroke-width="2"/>
+                <text x="230" y="104" class="part-label" text-anchor="middle">Hero's Fountain Basin</text>
+
+                <!-- Fountain Jet -->
+                <path d="M230 110 Q230 40 230 36 M230 36 Q220 54 214 74 M230 36 Q240 54 246 74" fill="none" stroke="#7af0ff" stroke-width="3" stroke-linecap="round"/>
+                <circle cx="230" cy="34" r="4" fill="#5dffc4"/>
+
+                <!-- Middle Air Chamber -->
+                <rect x="140" y="170" width="180" height="80" rx="10" fill="#0f2138" stroke="#8b7cff" stroke-width="2"/>
+                <text x="230" y="200" class="part-label" text-anchor="middle">Air &amp; Pressure Chamber</text>
+
+                <!-- Bottom Water Reservoir -->
+                <rect x="140" y="290" width="180" height="110" rx="10" fill="#0b1b30" stroke="#3ee0ff" stroke-width="2"/>
+                <rect x="146" y="340" width="168" height="54" fill="rgba(62,224,255,0.2)"/>
+                <text x="230" y="324" class="part-label" text-anchor="middle">Clepsydra Reservoir</text>
+
+                <!-- Water Pipe Flow Animations -->
+                <path d="M200 120 L200 370" class="water-flow"/>
+                <path d="M260 250 L260 110" class="water-flow" style="animation-direction: reverse;"/>
+                <circle cx="200" cy="150" r="5" fill="#5dffc4" class="drop"/>
+                <circle cx="200" cy="270" r="5" fill="#5dffc4" class="drop" style="animation-delay: -0.9s;"/>
+
+                <!-- Clepsydra Timekeeping Float & Gear -->
+                <g class="hotspot">
+                  <rect x="160" y="350" width="46" height="16" rx="4" fill="#ffbe3c"/>
+                  <line x1="183" y1="350" x2="183" y2="280" stroke="#ffbe3c" stroke-width="3"/>
+                  <line x1="183" y1="280" x2="173" y2="280" stroke="#ffbe3c" stroke-width="3"/>
+                  <!-- Gear Pointer -->
+                  <circle cx="106" cy="280" r="16" fill="#132742" stroke="#ffbe3c" stroke-width="2"/>
+                  <line x1="106" y1="280" x2="118" y2="270" stroke="#5dffc4" stroke-width="3" stroke-linecap="round"/>
+                  <text x="106" y="254" class="part-label" text-anchor="middle">Time Indicator</text>
+                  <text x="183" y="380" class="part-label" text-anchor="middle">Float Valve</text>
+                </g>
+              </svg>
+            </div>
+          </div>
+        </section>
+
+        <!-- Slide 9 -->
+        <section class="slide" data-slide="9" aria-label="Slide 9">
+          <div class="modern-layout">
+            <div class="panel" style="padding: 24px; overflow: auto;">
+              <div class="kicker">Evolution of Morphology</div>
+              <p style="font-size: 1.15rem; margin-bottom: 12px; font-weight: 600;">Early inventors often designed robots to look like humans because:</p>
+              <ul class="reason-list">
+                <li>It felt more familiar and less frightening to users</li>
+                <li>It felt more natural to use</li>
+                <li>It fits really well in spaces designed for humans</li>
+                <li>It proved theories of muscle movement</li>
+                <li>It was intended to spark life in a non-living object</li>
+                <li>It was used for magic tricks</li>
+                <li>It showed off the high skill of the maker with all the complex* parts</li>
+                <li>It was used for story telling using life like figures</li>
+              </ul>
+              <div class="footnote">* For the time</div>
+            </div>
+
+            <div class="panel modern-copy">
+              <p>Many modern industrial machines do not look like humans as it is inefficient to add extra parts that virtually do nothing. It wastes material and energy to add these redundant parts. Modern software and A.I. have change what robots can do by making the robot do it’s own actions with our giving it instructions. It has made robots that move and act (on it’s own will) just like humans.</p>
+
+              <div class="compare">
+                <div class="panel" style="padding: 12px; text-align: center;">
+                  <svg viewBox="0 0 120 100" style="width: 100%; height: 60px;">
+                    <circle cx="60" cy="24" r="14" fill="#3ee0ff"/>
+                    <rect x="48" y="42" width="24" height="34" rx="4" fill="#3ee0ff"/>
+                    <line x1="42" y1="46" x2="30" y2="70" stroke="#3ee0ff" stroke-width="3" stroke-linecap="round"/>
+                    <line x1="78" y1="46" x2="90" y2="70" stroke="#3ee0ff" stroke-width="3" stroke-linecap="round"/>
+                  </svg>
+                  <div style="font-size: 0.75rem; color: var(--muted); font-family: var(--font-display);">Humanoid Form</div>
+                </div>
+                <div class="panel" style="padding: 12px; text-align: center;">
+                  <svg viewBox="0 0 120 100" style="width: 100%; height: 60px;">
+                    <rect x="20" y="65" width="80" height="16" rx="4" fill="#ffbe3c"/>
+                    <path d="M40 65 L60 25 L85 45 L95 65" fill="none" stroke="#5dffc4" stroke-width="4" stroke-linecap="round"/>
+                    <circle cx="85" cy="45" r="5" fill="#8b7cff"/>
+                  </svg>
+                  <div style="font-size: 0.75rem; color: var(--muted); font-family: var(--font-display);">Purpose-Built Industrial</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Slide 10 -->
+        <section class="slide" data-slide="10" aria-label="Slide 10">
+          <div class="eval-grid">
+            <article class="panel eval-card">
+              <div class="kicker">Definition</div>
+              <h3>Changing Definition</h3>
+              <p>The definition of robots has changed over time. This is because back then, robots were defined as anything that can move using pulleys, levers, and gears. Now, robots are much more sophisticated and defined by anything that is powered by electricity and/or the other three simple machines. Two clear benefits of using A.I. are:</p>
+            </article>
+
+            <article class="panel eval-card">
+              <div class="kicker">Benefits</div>
+              <h3>Two Clear Benefits</h3>
+              <ul>
+                <li>It can help with house hold chores</li>
+                <li>It can teach us information that we did not know</li>
+              </ul>
+            </article>
+
+            <article class="panel eval-card">
+              <div class="kicker">Risks</div>
+              <h3>Two Clear Risks</h3>
+              <p style="margin-bottom: 8px;">Two clear risks of using A.I. are:</p>
+              <ul>
+                <li>It may understand something wrong and damage or break something</li>
+                <li>It may teach wrong information to the public</li>
+              </ul>
+            </article>
+
+            <article class="panel eval-card">
+              <div class="kicker">Opinion</div>
+              <h3>Decision Making</h3>
+              <p>I think that A.I. systems should make big decisions for humans if they are double checked by the people involved in making the decision as it may help create options that the decison makers have not thought about.</p>
+            </article>
+          </div>
+        </section>
+
+        <!-- Slide 11 -->
+        <section class="slide" data-slide="11" aria-label="Slide 11">
+          <div class="medisort-layout">
+            <div class="panel spec-stack">
+              <div class="kicker">Innovative Robot Project</div>
+              <div class="panel spec">
+                <b>Name:</b> <span>Medisort</span>
+              </div>
+              <div class="panel spec">
+                <b>Problem:</b> <span>Many people with health conditions do not have medical training, so they can easily miss a pill or take a double dose. This simple mistake can lead to dangerous and severe health consequences.</span>
+              </div>
+              <div class="panel spec">
+                <b>Target User:</b> <span>People who have medical issues and unable to know when to take a pill and how much to take.</span>
+              </div>
+              <div class="panel spec">
+                <b>Sensors:</b> <span>It uses a time sensor and sets of an alarm when it is time to take medicine.</span>
+              </div>
+              <div class="panel spec">
+                <b>Rules:</b> <span>It uses the knowledge that people give it and dispenses the right amount of pills. (e.g. Pills in Tray 5 are B-12 tablets, Administrate every 2-3 weeks)</span>
+              </div>
+              <div class="panel spec">
+                <b>Safety:</b> <span>It is child and pet proof so they can’t take pills not administrated to them. Comes with an emergency backup system so even if there is a power outage it will still deliver life saving medicine. Uses weight scanner to double check for right amount of pills. Health data is encrypted so no hackers can easily steal private information</span>
+              </div>
+            </div>
+
+            <div class="panel medisort-stage">
+              <div class="medisort-header">
+                <div style="display: flex; gap: 10px; align-items: center;">
+                  <div class="kicker" style="margin: 0;">Medisort System</div>
+                  <div class="view-toggle" role="tablist" aria-label="Medisort Display Modes">
+                    <button type="button" class="view-btn active" id="btn-view-3d">3D Simulator</button>
+                    <button type="button" class="view-btn" id="btn-view-concept">Concept Render</button>
+                  </div>
+                </div>
+                <div id="medisort-status" style="font-size: 0.82rem; font-family: var(--font-display); color: var(--cyan);">Ready</div>
+              </div>
+
+              <!-- 3D Interactive View -->
+              <div class="medisort-view-pane" id="pane-3d">
+                <canvas id="medisort-canvas"></canvas>
+              </div>
+
+              <!-- Concept Render Blueprint View -->
+              <div class="medisort-view-pane hidden-layout" id="pane-concept">
+                <div class="concept-frame">
+                  <img src="./medisort-concept.jpg" alt="Medisort Reference Concept Machine" />
+                  <!-- Interactive Callout Pins -->
+                  <div class="concept-pin" style="top: 18%; left: 52%;">
+                    <div class="pin-dot">1</div>
+                    <div class="pin-tooltip"><strong>Sensors / Touchscreen:</strong> Next Dose (08:30 AM), Tray 5 B-12 Tablet, Alarm</div>
+                  </div>
+                  <div class="concept-pin" style="top: 48%; left: 35%;">
+                    <div class="pin-dot">2</div>
+                    <div class="pin-tooltip"><strong>Suction Pipe 1:</strong> Suction pipe on tray position 1</div>
+                  </div>
+                  <div class="concept-pin" style="top: 50%; left: 61%;">
+                    <div class="pin-dot">3</div>
+                    <div class="pin-tooltip"><strong>Suction Pipe 8:</strong> Suction pipe on tray position 8</div>
+                  </div>
+                  <div class="concept-pin" style="top: 62%; left: 48%;">
+                    <div class="pin-dot">4</div>
+                    <div class="pin-tooltip"><strong>Rotating Tray:</strong> 8 sequentially numbered compartments with pills</div>
+                  </div>
+                  <div class="concept-pin" style="top: 80%; left: 20%;">
+                    <div class="pin-dot">5</div>
+                    <div class="pin-tooltip"><strong>Safety / Weight Scanner:</strong> Verified 1 pill (0.52g) &amp; Encrypted Data</div>
+                  </div>
+                  <div class="concept-pin" style="top: 86%; left: 45%;">
+                    <div class="pin-dot">6</div>
+                    <div class="pin-tooltip"><strong>Dispense Chute:</strong> Illuminated medicine delivery tray</div>
+                  </div>
+                  <div class="concept-pin" style="top: 32%; left: 93%;">
+                    <div class="pin-dot">7</div>
+                    <div class="pin-tooltip"><strong>Emergency Backup:</strong> Battery backup system (System OK)</div>
+                  </div>
+                  <div class="concept-pin" style="top: 86%; left: 66%;">
+                    <div class="pin-dot">8</div>
+                    <div class="pin-tooltip"><strong>Child &amp; Pet Proof:</strong> Biometric safety lock active</div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="medisort-controls">
+                <button class="action-btn ghost" id="btn-rotate-tray" type="button">Rotate tray</button>
+                <button class="action-btn" id="btn-dispense" type="button">Dispense</button>
+                <button class="action-btn ghost" id="btn-reset-tray" type="button">Reset</button>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Slide 12 (Referenced as Slide 13 in brief) -->
+        <section class="slide" data-slide="12" aria-label="Slide 13 References">
+          <div class="panel refs">
+            <div class="kicker">Documentation &amp; Sources</div>
+            <h2>References</h2>
+            <ul>
+              <li>
+                <b>MIT Press Reader:</b>
+                <a href="https://thereader.mit.edu/the-ancient-history-of-intelligent-machines/" target="_blank" rel="noopener noreferrer">The Ancient History of Intelligent Machines</a>
+              </li>
+              <li>
+                <b>Stanford University:</b>
+                <a href="https://cs.stanford.edu/people/eroberts/courses/soco/projects/1998-99/robotics/history.html" target="_blank" rel="noopener noreferrer">The History of Robotics</a>
+              </li>
+              <li>
+                <b>Science Museum Group:</b>
+                <a href="https://www.sciencemuseum.org.uk/objects-and-stories/why-robot" target="_blank" rel="noopener noreferrer">Why Build a Robot?</a>
+              </li>
+              <li>
+                <b>Adelaide Robotics Academy:</b>
+                <a href="https://www.roboticsacademy.com.au/history-of-robots/" target="_blank" rel="noopener noreferrer">A Brief History of Robots</a>
+              </li>
+            </ul>
+            <div class="refs-credits">
+              <p>Content prepared by <strong>Tejas Vemulapalli</strong> and presentation generated using <strong>Cursor</strong></p>
+            </div>
+          </div>
+        </section>
+      </main>
+
+      <!-- Persistent Deck Navigation -->
+      <footer class="deck-nav" aria-label="Presentation Controls">
+        <button class="nav-btn" id="prev-btn" type="button" aria-label="Previous Slide">‹</button>
+
+        <div class="slide-meter">
+          <div class="slide-number" id="slide-indicator">SLIDE 01 / 12</div>
+          <div class="progress" aria-hidden="true">
+            <span id="progress-bar"></span>
+          </div>
+          <div class="dots" id="slide-dots"></div>
+        </div>
+
+        <button class="nav-btn" id="next-btn" type="button" aria-label="Next Slide">›</button>
+      </footer>
+    </div>
+
+  </body>
+</html>
